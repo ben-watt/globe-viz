@@ -1,0 +1,6 @@
+.vscode
+bin
+obj
+.snowpack
+build
+node_modules
