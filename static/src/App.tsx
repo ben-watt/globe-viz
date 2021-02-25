@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Position3D, _GlobeView as GlobeView, _SunLight as SunLight } from '@deck.gl/core'
+import React, { useState } from 'react';
+import { _GlobeView as GlobeView } from '@deck.gl/core'
 import DeckGL from '@deck.gl/react';
-import {ArcLayer, BitmapLayer, GeoJsonLayer, LineLayer, PointCloudLayer, PolygonLayer, SolidPolygonLayer} from '@deck.gl/layers';
-import { TileLayer } from '@deck.gl/geo-layers';
-import { AmbientLight, COORDINATE_SYSTEM, LightingEffect, PointLight, SimpleMeshLayer } from 'deck.gl';
-import {SphereGeometry} from '@luma.gl/core';
+import {ArcLayer, GeoJsonLayer, SolidPolygonLayer} from '@deck.gl/layers';
+import { AmbientLight, LightingEffect } from 'deck.gl';
 
 import "./App.css";
-import { DirectionalLight } from '@deck.gl/core';
-import deckGl from 'deck.gl';
-import Transition from '@deck.gl/core/transitions/transition';
-
 
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
@@ -19,11 +13,18 @@ const ambientLight = new AmbientLight({
 
 const lightingEffect = new LightingEffect({ ambientLight })
 
-const EARTH_RADIUS_METERS = 6.32e6;
 
 interface AppProps {}
 
 const App = ({}: AppProps) => {
+
+  const [state, setState] = useState({
+    background: "",
+    globeLand: "",
+    globeSea: "",
+    ArchFrom: "",
+    ArchTo: ""
+  });
   
   // Viewport settings
   const INITIAL_VIEW_STATE = {
@@ -41,8 +42,17 @@ const App = ({}: AppProps) => {
     })
   ]
   
+  interface Loc {
+    name: string
+    coordinates: Array<number>
+  }
 
-  const archData = [{
+  interface ArchData {
+    from: Loc
+    to: Loc
+  }
+
+  const archData : Array<ArchData> = [{
         from: {
           name: '19th St. Oakland (19TH)',
           coordinates: [-2.244644, 53.483959]
@@ -59,7 +69,7 @@ const App = ({}: AppProps) => {
       data: [
         [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
       ],
-      getPolygon: d => d,
+      getPolygon: d => d as any,
       stroked: false,
       filled: true,
       opacity: 1,
@@ -84,20 +94,46 @@ const App = ({}: AppProps) => {
       getHeight: 0.5,
       onClick: (ev) => console.log(ev),
       onHover: (ev) => console.log(ev.object),
-      getSourcePosition: d => d.from.coordinates,
-      getTargetPosition: d => d.to.coordinates,
-      getSourceColor: d => [200, 0, 200],
-      getTargetColor: d => [0, 0, 255],
+      getSourcePosition: d => (d as any).from.coordinates,
+      getTargetPosition: d => (d as any).to.coordinates,
+      getSourceColor: () => [200, 0, 200],
+      getTargetColor: () => [0, 0, 255],
     })
   ];
   
   // style={{ backgroundImage: "linear-gradient(to right bottom, #180025, #150423, #130920, #120c1d, #110f19, #110f1a, #100f1b, #100f1c, #0e0d22, #0c0a28, #09062e, #050334)" }}
-  return <DeckGL style={{ backgroundColor: "rgb(5, 5, 5)" }}
-      views={views}
-      initialViewState={INITIAL_VIEW_STATE}
-      controller={true}
-      effects={[lightingEffect]}
-      layers={layers} />
+  return (
+    <div>
+      <DeckGL style={{ backgroundColor: "rgb(5, 5, 5)" }}
+        views={views}
+        initialViewState={INITIAL_VIEW_STATE}
+        controller={true}
+        effects={[lightingEffect]}
+        layers={layers} />
+      <div className="absolute bg-white flex-col w-52 p-2">
+        <fieldset className="flex justify-between">
+          <label htmlFor="background">Background</label>
+          <input id="background" name="background" type="color" onSelect={(ev) => console.log(ev)}/>
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="globe-sea">Globe Sea</label>
+          <input id="globe-sea" name="globe-sea" type="color" />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="globe-land">Globe Land</label>
+          <input id="globe-land" name="globe-land" type="color" />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="arch-from">Arch From</label>
+          <input id="arch-from" name="arch-from" type="color" />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="arch-to">Arch To</label>
+          <input id="arch-to" name="arch-to" type="color" />
+        </fieldset>
+      </div>
+    </div>
+    )
 }
 
 export default App;
