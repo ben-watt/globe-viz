@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, SyntheticEvent, useState } from 'react';
 import { _GlobeView as GlobeView } from '@deck.gl/core'
 import DeckGL from '@deck.gl/react';
 import {ArcLayer, GeoJsonLayer, SolidPolygonLayer} from '@deck.gl/layers';
@@ -33,7 +33,7 @@ const App = ({}: AppProps) => {
   });
 
   function createEventHandler(propName: string) {
-    return (ev) => setColour(curr => ({ ...curr, [propName] : ev.target.value }))
+    return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName] : ev.target.value }))
   }
   
   // Viewport settings
@@ -92,7 +92,9 @@ const App = ({}: AppProps) => {
       filled: true,
       opacity: 1,
       getFillColor: () => hexToArray(colour.globeLand),
-      shouldUpdateState: () => true,
+      updateTriggers: {
+        getFillColor: [colour.globeLand]
+      },
       material: {}
     }),
     new ArcLayer({
@@ -103,12 +105,17 @@ const App = ({}: AppProps) => {
       widthScale: 1,
       autoHighlight: true,
       getHeight: 0.5,
+      greatCircle: true,
       onClick: (ev) => console.log(ev),
       onHover: (ev) => console.log(ev.object),
       getSourcePosition: d => (d as any).from.coordinates,
       getTargetPosition: d => (d as any).to.coordinates,
       getSourceColor: () => hexToArray(colour.archFrom),
       getTargetColor: () => hexToArray(colour.archTo),
+      updateTriggers: {
+        getSourceColor: [colour.archFrom],
+        getTargetColor: [colour.archTo]
+      }
     })
   ];
   
