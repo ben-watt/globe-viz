@@ -10,13 +10,11 @@
 
 
   const vsDeclaration = `
-  attribute float instanceFrequency;
   varying float vArcLength;
-  varying float vFrequency;`
+  `
 
   const vsMain = `
   vArcLength = distance(source, target);
-  vFrequency = instanceFrequency;
   `
 
   const fsDeclaration = `
@@ -25,19 +23,21 @@
   uniform float animationSpeed;
 
   varying float vArcLength;
-  varying float vFrequency;`
+  `
 
   const fsColorFilter = `
   float tripDuration = vArcLength / animationSpeed;
-  float flightInterval = 1.0 / vFrequency;
-  float r = mod(geometry.uv.x, flightInterval);
+  float normalisedArch = fract(geometry.uv.x);
 
-  // Head of the trip (alpha = 1.0)
-  float rMax = mod(fract(timestamp / tripDuration), flightInterval);
+  // Position as a percentage of where the head is on the curve
+  float rMax = fract(timestamp / tripDuration);
+
   // Tail of the trip (alpha = 0.0)
-  float rMin = rMax - tailLength / vArcLength;
-  // Two consecutive trips can overlap
-  float alpha = (r > rMax ? 0.0 : smoothstep(rMin, rMax, r)) + smoothstep(rMin + flightInterval, rMax + flightInterval, r);
+  float rMin = -10.0;
+
+  // Only colour in from rMin to rMax and make a smoothstep transition;
+  float alpha = (normalisedArch > rMax ? 0.0 : smoothstep(rMin, rMax, normalisedArch));
+
   if (alpha == 0.0) {
     discard;
   }
@@ -205,7 +205,7 @@
       new AnimatedArcLayer({
         id: 'arc-layer',
         animationSpeed: 25,
-        tailLength: 50,
+        tailLength: 1,
         getFrequency: calculateFrequency,
         data: archData,
         pickable: true,
