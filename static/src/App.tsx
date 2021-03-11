@@ -10,19 +10,23 @@
 
 
   const vsDeclaration = `
+  attribute float instanceDate;
+  varying float vDate;
   varying float vArcLength;
   `
 
   const vsMain = `
   vArcLength = distance(source, target);
+  vDate = instanceDate;
   `
 
   const fsDeclaration = `
   uniform float tailLength;
-  uniform float timestamp;
+  uniform float currentTime;
   uniform float animationSpeed;
 
   varying float vArcLength;
+  varying float vDate;
   `
 
   const fsColorFilter = `
@@ -30,13 +34,13 @@
   float normalisedArch = fract(geometry.uv.x);
 
   // Position as a percentage of where the head is on the curve
-  float rMax = fract(timestamp / tripDuration);
+  float rMax = smoothstep(0.0, tripDuration, vDate);
 
   // Tail of the trip (alpha = 0.0)
-  float rMin = -10.0;
+  float rMin = 0.0;
 
-  // Only colour in from rMin to rMax and make a smoothstep transition;
-  float alpha = (normalisedArch > rMax ? 0.0 : smoothstep(rMin, rMax, normalisedArch));
+  // Only colour in from rMin to rMax
+  float alpha = (normalisedArch > rMax ? 0.0 : 1.0);
 
   if (alpha == 0.0) {
     discard;
@@ -60,23 +64,23 @@
       super.initializeState(params);
       
       this.getAttributeManager().addInstanced({
-        instanceFrequency: {
+        instanceDate: {
           size: 1,
-          accessor: 'getFrequency',
-          defaultValue: 1
+          accessor: 'getDate',
+          defaultValue: Math.floor(Date.now() / 1000)
         },
       });
     }
     
     draw(opts) {
+      console.log(this.props)
       this.state.model.setUniforms({
         tailLength: this.props.tailLength,
         animationSpeed: this.props.animationSpeed,
-        timestamp: (Date.now() / 1000) % 86400
+        currentTime: Math.floor(Date.now() / 1000),
       });
 
       super.draw(opts);
-
       this.setNeedsRedraw();
     }
   }
@@ -153,11 +157,13 @@
     }
 
     interface ArchData {
-      from: Loc
+      date: number,
+      from: Loc,
       to: Loc
     }
 
     const archData: Array<ArchData> = [{
+      date: Date.now(),
       from: {
         name: '19th St. Oakland (19TH)',
         coordinates: [-2.244644, 53.483959]
@@ -168,6 +174,7 @@
       }
     },
     {
+      date: 1615410149040,
       from: {
         name: '19th St. Oakland (19TH)',
         coordinates: [-2.244644, 53.483959]
@@ -221,6 +228,11 @@
         getTargetPosition: d => (d as any).to.coordinates,
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
+        getDate: d =>  { 
+          let diffInSeconds = Math.floor(Date.now() / 1000) - Math.floor(d.date / 1000);
+          console.log(diffInSeconds)
+          return diffInSeconds;
+        },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo]
