@@ -1,4 +1,4 @@
-  import React, { ChangeEvent, SyntheticEvent, useState } from 'react';
+  import React, { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
   import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
@@ -13,6 +13,7 @@
   attribute float instanceDate;
   varying float vDate;
   varying float vArcLength;
+  float test;
   `
 
   const vsMain = `
@@ -31,10 +32,13 @@
 
   const fsColorFilter = `
   float tripDuration = vArcLength / animationSpeed;
+
+  // start = 0, end = 1;
   float normalisedArch = fract(geometry.uv.x);
 
   // Position as a percentage of where the head is on the curve
-  float rMax = smoothstep(0.0, tripDuration, vDate);
+ 
+  float rMax = smoothstep(0.0, 10.0, currentTime - vDate);
 
   // Tail of the trip (alpha = 0.0)
   float rMin = 0.0;
@@ -67,17 +71,18 @@
         instanceDate: {
           size: 1,
           accessor: 'getDate',
-          defaultValue: Math.floor(Date.now() / 1000)
+          defaultValue: 0.0
         },
       });
     }
     
     draw(opts) {
-      console.log(this.props)
+      let x = (Date.now() - 1615746276338) / 1000;
+      
       this.state.model.setUniforms({
         tailLength: this.props.tailLength,
         animationSpeed: this.props.animationSpeed,
-        currentTime: Math.floor(Date.now() / 1000),
+        currentTime: x,
       });
 
       super.draw(opts);
@@ -115,8 +120,6 @@
     let normalLong = long / 180;
 
     let distance = normalLat + normalLong;
-    
-    console.log({ distance });
     return distance * 6;
   }
 
@@ -165,22 +168,22 @@
     const archData: Array<ArchData> = [{
       date: Date.now(),
       from: {
-        name: '19th St. Oakland (19TH)',
+        name: 'Manchester',
         coordinates: [-2.244644, 53.483959]
       },
       to: {
-        name: '12th St. Oakland City Center (12TH)',
+        name: 'California',
         coordinates: [-122.271604, 37.803664]
       }
     },
     {
       date: 1615410149040,
       from: {
-        name: '19th St. Oakland (19TH)',
+        name: 'Manchester',
         coordinates: [-2.244644, 53.483959]
       },
       to: {
-        name: '12th St. Oakland City Center (12TH)',
+        name: 'Copenhagen',
         coordinates: [15.271604, 56.803664]
       }
     }]
@@ -223,15 +226,15 @@
         greatCircle: true,
         color: colour.archFrom,
         onClick: (ev) => console.log(ev),
-        onHover: (ev) => console.log(ev.object),
+        onHover: (ev) => console.log(ev),
         getSourcePosition: d => (d as any).from.coordinates,
         getTargetPosition: d => (d as any).to.coordinates,
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: d =>  { 
-          let diffInSeconds = Math.floor(Date.now() / 1000) - Math.floor(d.date / 1000);
-          console.log(diffInSeconds)
-          return diffInSeconds;
+          let c =  Math.floor((d.date - 1615746276338) / 1000);
+          console.log(c);
+          return c;
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
