@@ -179,7 +179,7 @@
         },
         parameters: {
           // prevent flicker from z-fighting
-          [GL.DEPTH_TEST]: false,
+          [GL.DEPTH_TEST]: true,
 
           // turn on additive blending to make them look more glowy
           [GL.BLEND]: true,
@@ -187,7 +187,7 @@
           [GL.BLEND_DST_RGB]: GL.ONE,
           [GL.BLEND_EQUATION]: GL.FUNC_ADD,
         }
-      })
+      }),
     ];
 
     return (
