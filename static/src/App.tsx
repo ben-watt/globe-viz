@@ -69,28 +69,63 @@
       to: Loc
     }
 
-    const archData: Array<ArchData> = [{
-      date: Date.now(),
-      from: {
-        name: 'Manchester',
-        coordinates: [-2.244644, 53.483959]
+    const archData: Array<ArchData> = [
+      {
+        date: Date.now(),
+        from: {
+          name: 'Manchester',
+          coordinates: [-2.244644, 53.483959]
+        },
+        to: {
+          name: 'California',
+          coordinates: [-122.271604, 37.803664]
+        }
       },
-      to: {
-        name: 'California',
-        coordinates: [-122.271604, 37.803664]
-      }
-    },
-    {
-      date: Date.now(),
-      from: {
-        name: 'Manchester',
-        coordinates: [-2.244644, 53.483959]
+      {
+        date: Date.now() + 1000,
+        from: {
+          name: 'Manchester',
+          coordinates: [-2.244644, 53.483959]
+        },
+        to: {
+          name: 'California',
+          coordinates: [-2.144644, 55.803664]
+        }
       },
-      to: {
-        name: 'Copenhagen',
-        coordinates: [15.271604, 56.803664]
+      {
+        date: Date.now() + 2000,
+        from: {
+          name: 'Manchester',
+          coordinates: [-2.244644, 53.483959]
+        },
+        to: {
+          name: 'California',
+          coordinates: [-100.271604, 107.803664]
+        }
+      },
+      {
+        date: Date.now() + 3000,
+        from: {
+          name: 'Manchester',
+          coordinates: [-2.244644, 53.483959]
+        },
+        to: {
+          name: 'California',
+          coordinates: [-5.244644, 20.03664]
+        }
+      },
+      {
+        date: Date.now() + 2500,
+        from: {
+          name: 'Manchester',
+          coordinates: [-2.244644, 53.483959]
+        },
+        to: {
+          name: 'Copenhagen',
+          coordinates: [15.271604, 56.803664]
+        }
       }
-    }]
+    ]
 
     const layers = [
       new SolidPolygonLayer({
@@ -122,14 +157,14 @@
         tailLength: 1,
         data: archData,
         pickable: true,
-        getWidth: 1,
+        getWidth: 2,
         widthScale: 1,
         autoHighlight: true,
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        onClick: (ev) => console.log(ev),
-        onHover: (ev) => console.log(ev),
+        // onClick: (ev) => console.log(ev),
+        // onHover: (ev) => console.log(ev),
         getSourcePosition: d => (d as any).from.coordinates,
         getTargetPosition: d => (d as any).to.coordinates,
         getSourceColor: () => hexToArray(colour.archFrom),
@@ -137,6 +172,7 @@
         getDate: d =>  { 
           return Math.floor((d.date - 1615746276338) / 1000);
         },
+        pickable: true,
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo]
@@ -157,6 +193,7 @@
     return (
       <div>
         <DeckGL
+          getTooltip={({object}) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
           style={{ backgroundColor: colour.background }}
           views={views}
           initialViewState={INITIAL_VIEW_STATE}
