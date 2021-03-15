@@ -31,14 +31,14 @@
   `
 
   const fsColorFilter = `
-  float tripDuration = vArcLength / animationSpeed;
+  float tripDuration = 5.0;
 
   // start = 0, end = 1;
   float normalisedArch = fract(geometry.uv.x);
 
   // Position as a percentage of where the head is on the curve
  
-  float rMax = smoothstep(0.0, 10.0, currentTime - vDate);
+  float rMax = smoothstep(0.0, tripDuration, currentTime - vDate);
 
   // Tail of the trip (alpha = 0.0)
   float rMin = 0.0;
@@ -177,7 +177,7 @@
       }
     },
     {
-      date: 1615410149040,
+      date: Date.now(),
       from: {
         name: 'Manchester',
         coordinates: [-2.244644, 53.483959]
@@ -214,7 +214,7 @@
       }),
       new AnimatedArcLayer({
         id: 'arc-layer',
-        animationSpeed: 25,
+        animationSpeed: 10.0,
         tailLength: 1,
         getFrequency: calculateFrequency,
         data: archData,
