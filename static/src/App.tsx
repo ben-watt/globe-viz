@@ -42,18 +42,13 @@
       archTo: "#000000"
     });
 
-    function createEventHandler(propName: string) {
-      localStorage.setItem('colour', JSON.stringify(colour))
-      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
-    }
-
     // Viewport settings
     const INITIAL_VIEW_STATE = {
       longitude: -2.244644,
       latitude: 53.483959,
-      zoom: 3,
+      zoom: 1,
       pitch: 0,
-      bearing: 0
+      bearing: 10,
     };
 
     const views = [
@@ -168,57 +163,68 @@
           controller={true}
           effects={[lightingEffect]}
           layers={layers} />
-        <div className="absolute">
-          <div className="w-8 m-5 cursor-pointer transform hover:rotate-12 duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <div className="bg-white flex-col w-52 px-5 py-2 rounded">
-            <fieldset className="flex justify-between">
-              <label htmlFor="background">Background</label>
-              <input id="background"
-                name="background"
-                type="color"
-                value={colour.background}
-                onChange={createEventHandler("background")} />
-            </fieldset>
-            <fieldset className="flex justify-between">
-              <label htmlFor="globe-sea">Globe Sea</label>
-              <input id="globe-sea"
-                name="globe-sea"
-                type="color"
-                value={colour.globeSea}
-                onChange={createEventHandler("globeSea")} />
-            </fieldset>
-            <fieldset className="flex justify-between">
-              <label htmlFor="globe-land">Globe Land</label>
-              <input id="globe-land" 
-                name="globe-land" 
-                type="color" 
-                value={colour.globeSea}
-                onChange={createEventHandler("globeLand")} />
-            </fieldset>
-            <fieldset className="flex justify-between">
-              <label htmlFor="arch-from">Arch From</label>
-              <input id="arch-from" 
-                name="arch-from" 
-                type="color" 
-                value={colour.archFrom}
-                onChange={createEventHandler("archFrom")} />
-            </fieldset>
-            <fieldset className="flex justify-between">
-              <label htmlFor="arch-to">Arch To</label>
-              <input id="arch-to" 
-                name="arch-to" 
-                type="color" 
-                value={colour.archTo}
-                onChange={createEventHandler("archTo")} />
-            </fieldset>
-          </div>
-        </div>
+        <Menu colour={colour} setColour={setColour}/>
       </div>
+    )
+  }
+
+  const Menu = ({ colour, setColour}) => {
+
+    function createEventHandler(propName: string) {
+      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
+    }
+
+    return (
+      <div className="absolute">
+      <div className="w-8 m-5 cursor-pointer transform hover:rotate-45 duration-200 text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <div className="bg-white flex-col w-52 px-5 py-2 rounded">
+        <fieldset className="flex justify-between">
+          <label htmlFor="background">Background</label>
+          <input id="background"
+            name="background"
+            type="color"
+            value={colour.background}
+            onChange={createEventHandler("background")} />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="globe-sea">Globe Sea</label>
+          <input id="globe-sea"
+            name="globe-sea"
+            type="color"
+            value={colour.globeSea}
+            onChange={createEventHandler("globeSea")} />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="globe-land">Globe Land</label>
+          <input id="globe-land" 
+            name="globe-land" 
+            type="color" 
+            value={colour.globeSea}
+            onChange={createEventHandler("globeLand")} />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="arch-from">Arch From</label>
+          <input id="arch-from" 
+            name="arch-from" 
+            type="color" 
+            value={colour.archFrom}
+            onChange={createEventHandler("archFrom")} />
+        </fieldset>
+        <fieldset className="flex justify-between">
+          <label htmlFor="arch-to">Arch To</label>
+          <input id="arch-to" 
+            name="arch-to" 
+            type="color" 
+            value={colour.archTo}
+            onChange={createEventHandler("archTo")} />
+        </fieldset>
+      </div>
+    </div>
     )
   }
 
