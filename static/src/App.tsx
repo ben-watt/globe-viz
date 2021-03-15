@@ -1,94 +1,14 @@
   import React, { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
-  import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
+  import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
+  import { AnimatedArcLayer } from './AnimatedArcLayer';
   import { AmbientLight, LightingEffect } from 'deck.gl';
   import hexRgb from 'hex-rgb';
   import { useLocalStorage } from './hooks';
+  import GL from '@luma.gl/constants';
 
   import "./App.css";
-
-
-  const vsDeclaration = `
-  attribute float instanceDate;
-  varying float vDate;
-  varying float vArcLength;
-  float test;
-  `
-
-  const vsMain = `
-  vArcLength = distance(source, target);
-  vDate = instanceDate;
-  `
-
-  const fsDeclaration = `
-  uniform float tailLength;
-  uniform float currentTime;
-  uniform float animationSpeed;
-
-  varying float vArcLength;
-  varying float vDate;
-  `
-
-  const fsColorFilter = `
-  float tripDuration = 5.0;
-
-  // start = 0, end = 1;
-  float normalisedArch = fract(geometry.uv.x);
-
-  // Position as a percentage of where the head is on the curve
- 
-  float rMax = smoothstep(0.0, tripDuration, currentTime - vDate);
-
-  // Tail of the trip (alpha = 0.0)
-  float rMin = 0.0;
-
-  // Only colour in from rMin to rMax
-  float alpha = (normalisedArch > rMax ? 0.0 : 1.0);
-
-  if (alpha == 0.0) {
-    discard;
-  }
-  color.a *= alpha;
-  `
-
-  class AnimatedArcLayer extends ArcLayer {
-    getShaders() {
-      const shaders = super.getShaders();
-      shaders.inject = {
-        'vs:#decl': vsDeclaration,
-        'vs:#main-end': vsMain,
-        'fs:#decl': fsDeclaration,
-        'fs:DECKGL_FILTER_COLOR': fsColorFilter
-      };
-      return shaders;
-    }
-
-    initializeState(params) {
-      super.initializeState(params);
-      
-      this.getAttributeManager().addInstanced({
-        instanceDate: {
-          size: 1,
-          accessor: 'getDate',
-          defaultValue: 0.0
-        },
-      });
-    }
-    
-    draw(opts) {
-      let x = (Date.now() - 1615746276338) / 1000;
-      
-      this.state.model.setUniforms({
-        tailLength: this.props.tailLength,
-        animationSpeed: this.props.animationSpeed,
-        currentTime: x,
-      });
-
-      super.draw(opts);
-      this.setNeedsRedraw();
-    }
-  }
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -110,17 +30,6 @@
     globeSea: string,
     archFrom: string,
     archTo: string,
-  }
-
-  const calculateFrequency = (d) => {
-    let lat = Math.abs(d.from.coordinates[0] - d.to.coordinates[0])
-    let long = Math.abs(d.from.coordinates[1] - d.to.coordinates[1])
-
-    let normalLat = lat / 90;
-    let normalLong = long / 180;
-
-    let distance = normalLat + normalLong;
-    return distance * 6;
   }
 
   const App = ({ }: AppProps) => {
@@ -216,7 +125,6 @@
         id: 'arc-layer',
         animationSpeed: 10.0,
         tailLength: 1,
-        getFrequency: calculateFrequency,
         data: archData,
         pickable: true,
         getWidth: 1,
@@ -232,18 +140,25 @@
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: d =>  { 
-          let c =  Math.floor((d.date - 1615746276338) / 1000);
-          console.log(c);
-          return c;
+          return Math.floor((d.date - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo]
+        },
+        parameters: {
+          // prevent flicker from z-fighting
+          [GL.DEPTH_TEST]: false,
+
+          // turn on additive blending to make them look more glowy
+          [GL.BLEND]: true,
+          [GL.BLEND_SRC_RGB]: GL.ONE,
+          [GL.BLEND_DST_RGB]: GL.ONE,
+          [GL.BLEND_EQUATION]: GL.FUNC_ADD,
         }
       })
     ];
 
-    // style={{ backgroundImage: "linear-gradient(to right bottom, #180025, #150423, #130920, #120c1d, #110f19, #110f1a, #100f1b, #100f1c, #0e0d22, #0c0a28, #09062e, #050334)" }}
     return (
       <div>
         <DeckGL
