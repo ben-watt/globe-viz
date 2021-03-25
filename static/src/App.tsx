@@ -228,6 +228,7 @@
 
   const SettingsMenu = ({ colour, setColour, setIsOpen }) => {
 
+    const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(colour, null, 2));
     function createEventHandler(propName: string) {
       return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
     }
@@ -278,7 +279,9 @@
           </fieldset>
         </div>
         <div className="pt-5 flex justify-between">
-          <button className="bg-black text-white px-2 py-1 hover:bg-gray-700">Download</button>
+          <a href={"data:" + colourJson} download="shipment_viz_colour.json">
+            <button onClick={() => console.log(JSON.stringify(colour, null, 2))} className="bg-black text-white px-2 py-1 hover:bg-gray-700">Download</button>
+          </a>
           <button className="bg-black text-white px-2 py-1 hover:bg-gray-700">Upload</button>
         </div>
       </div>
