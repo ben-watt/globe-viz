@@ -260,6 +260,9 @@
             value={colour.archTo}
             onChange={createEventHandler("archTo")} />
         </fieldset>
+        <div className="pt-10 ml-auto">
+          <button className="bg-black text-white px-2 py-1">Download</button>
+        </div>
       </div>
     </div>
     )
