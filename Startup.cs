@@ -19,7 +19,7 @@ namespace shipments_viz
                 configuration.RootPath = "UI/public";
             });
 
-            services.AddScoped<JourneyController>();
+            services.AddTransient<JourneyController>();
             services.AddHttpClient("journy-store");
         }
 

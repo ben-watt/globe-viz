@@ -1,4 +1,4 @@
-  import React, { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
+  import React, { useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
   import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
@@ -7,8 +7,10 @@
   import hexRgb from 'hex-rgb';
   import { useLocalStorage } from './hooks';
   import GL from '@luma.gl/constants';
+  import axios from 'axios';
 
   import "./App.css";
+import type { RGBAColor } from 'deck.gl';
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -42,6 +44,17 @@
       archTo: "#000000"
     });
 
+    const [archData, setArchData] = useState<Array<ArchData>>([]);
+    useEffect(() => {
+      async function getData() {
+        let response = await axios.get("http://localhost:5000/journeys")
+        console.log(response.data);
+        setArchData(response.data);
+      }
+      
+      getData();
+    });
+
     // Viewport settings
     const INITIAL_VIEW_STATE = {
       longitude: -2.244644,
@@ -69,64 +82,6 @@
       to: Loc
     }
 
-    const archData: Array<ArchData> = [
-      {
-        date: Date.now(),
-        from: {
-          name: 'Manchester',
-          coordinates: [-2.244644, 53.483959]
-        },
-        to: {
-          name: 'California',
-          coordinates: [-122.271604, 37.803664]
-        }
-      },
-      {
-        date: Date.now() + 1000,
-        from: {
-          name: 'Manchester',
-          coordinates: [-2.244644, 53.483959]
-        },
-        to: {
-          name: 'California',
-          coordinates: [-2.144644, 55.803664]
-        }
-      },
-      {
-        date: Date.now() + 2000,
-        from: {
-          name: 'Manchester',
-          coordinates: [-2.244644, 53.483959]
-        },
-        to: {
-          name: 'California',
-          coordinates: [-100.271604, 107.803664]
-        }
-      },
-      {
-        date: Date.now() + 3000,
-        from: {
-          name: 'Manchester',
-          coordinates: [-2.244644, 53.483959]
-        },
-        to: {
-          name: 'California',
-          coordinates: [-5.244644, 20.03664]
-        }
-      },
-      {
-        date: Date.now() + 2500,
-        from: {
-          name: 'Manchester',
-          coordinates: [-2.244644, 53.483959]
-        },
-        to: {
-          name: 'Copenhagen',
-          coordinates: [15.271604, 56.803664]
-        }
-      }
-    ]
-
     const layers = [
       new SolidPolygonLayer({
         id: 'background',
@@ -137,7 +92,7 @@
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: () => hexToArray(colour.globeSea),
+        getFillColor: () => hexToArray(colour.globeSea) as RGBAColor,
       }),
       new GeoJsonLayer({
         id: 'earth-land',
@@ -145,7 +100,7 @@
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: () => hexToArray(colour.globeLand),
+        getFillColor: () => hexToArray(colour.globeLand) as RGBAColor,
         updateTriggers: {
           getFillColor: [colour.globeLand]
         },
@@ -163,16 +118,13 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        // onClick: (ev) => console.log(ev),
-        // onHover: (ev) => console.log(ev),
-        getSourcePosition: d => (d as any).from.coordinates,
-        getTargetPosition: d => (d as any).to.coordinates,
+        getSourcePosition: (d : ArchData) => d.from.coordinates,
+        getTargetPosition: (d : ArchData) => d.to.coordinates,
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
-        getDate: d =>  { 
+        getDate: (d : ArchData) =>  { 
           return Math.floor((d.date - 1615746276338) / 1000);
         },
-        pickable: true,
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo]
@@ -193,7 +145,7 @@
     return (
       <div>
         <DeckGL
-          getTooltip={({object}) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
+          getTooltip={({ object }) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
           style={{ backgroundColor: colour.background }}
           views={views}
           initialViewState={INITIAL_VIEW_STATE}
@@ -205,7 +157,12 @@
     )
   }
 
-  const Menu = ({ colour, setColour}) => {
+  type MenuProps = {
+    colour: ColourState
+    setColour: (curr: ColourState) => ColourState
+  }
+
+  const Menu = ({ colour, setColour } : MenuProps) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -218,7 +175,12 @@
     )
   }
 
-  const MenuIcon = ({ isOpen, setIsOpen }) => {
+  type MenuIconProps = {
+    isOpen: boolean,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  }
+
+  const MenuIcon = ({ isOpen, setIsOpen } : MenuIconProps) => {
     return (      
       <div onClick={ev => setIsOpen(!isOpen)} className="w-8 m-5 cursor-pointer transform hover:rotate-45 duration-200 text-white">
         <SettingsIcon />
@@ -226,11 +188,17 @@
     )
   }
 
-  const SettingsMenu = ({ colour, setColour, setIsOpen }) => {
+  type SettingsMenuProps = {
+    colour: ColourState,
+    setColour: (curr: ColourState) => ColourState,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  }
+
+  const SettingsMenu = ({ colour, setColour, setIsOpen }: SettingsMenuProps) => {
 
     const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(colour, null, 2));
     function createEventHandler(propName: string) {
-      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
+      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour((curr: ColourState) => ({ ...curr, [propName]: ev.target.value }))
     }
 
     return (
@@ -294,7 +262,13 @@
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
 
-  const CrossIcon = ({ className, onClick }) => {
+
+type CrossIconProps = {
+  className: string,
+  onClick: React.MouseEventHandler
+}
+
+  const CrossIcon = ({ className, onClick } : CrossIconProps) => {
     return (
       <svg className={className} onClick={onClick} 
         xmlns="http://www.w3.org/2000/svg" 

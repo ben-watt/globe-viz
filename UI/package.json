@@ -9,6 +9,7 @@
   "dependencies": {
     "@deck.gl/layers": "^8.4.7",
     "@deck.gl/react": "^8.4.7",
+    "axios": "^0.21.1",
     "deck.gl": "^8.4.7",
     "hex-rgb": "^4.2.0",
     "luma.gl": "^7.3.2",
