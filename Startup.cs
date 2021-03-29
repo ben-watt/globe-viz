@@ -16,7 +16,7 @@ namespace shipments_viz
         {
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "static/public";
+                configuration.RootPath = "UI/public";
             });
 
             services.AddScoped<JourneyController>();
@@ -45,7 +45,7 @@ namespace shipments_viz
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "static";
+                spa.Options.SourcePath = "/UI";
 
                 if (env.IsDevelopment())
                 {
