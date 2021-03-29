@@ -16,11 +16,15 @@ namespace shipments_viz
         {
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "UI/public";
+                configuration.RootPath = "./UI/public";
             });
 
             services.AddTransient<JourneyController>();
-            services.AddHttpClient("journy-store");
+            services.AddHttpClient("journey-store");
+
+            services.AddCors(options =>
+                options.AddDefaultPolicy(pb =>
+                pb.WithOrigins("http://localhost:8080")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -28,6 +32,7 @@ namespace shipments_viz
         {
             if (env.IsDevelopment())
             {
+                app.UseCors();
                 app.UseDeveloperExceptionPage();
             }
 
@@ -45,7 +50,7 @@ namespace shipments_viz
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "/UI";
+                spa.Options.SourcePath = "./UI";
 
                 if (env.IsDevelopment())
                 {

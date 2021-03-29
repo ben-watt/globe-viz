@@ -10,7 +10,7 @@
   import axios from 'axios';
 
   import "./App.css";
-import type { RGBAColor } from 'deck.gl';
+  import type { RGBAColor } from 'deck.gl';
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -53,7 +53,7 @@ import type { RGBAColor } from 'deck.gl';
       }
       
       getData();
-    });
+    }, []);
 
     // Viewport settings
     const INITIAL_VIEW_STATE = {
@@ -198,7 +198,7 @@ import type { RGBAColor } from 'deck.gl';
 
     const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(colour, null, 2));
     function createEventHandler(propName: string) {
-      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour((curr: ColourState) => ({ ...curr, [propName]: ev.target.value }))
+      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
     }
 
     return (
