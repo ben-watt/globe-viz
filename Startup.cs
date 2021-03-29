@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.IO;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using shipments_viz.Controllers;
 
 namespace shipments_viz
 {
     public class Startup
     {
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -18,6 +18,9 @@ namespace shipments_viz
             {
                 configuration.RootPath = "static/public";
             });
+
+            services.AddScoped<JourneyController>();
+            services.AddHttpClient("journy-store");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -30,13 +33,14 @@ namespace shipments_viz
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseCloudEvents();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/test", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapSubscribeHandler();
+
+                endpoints.MapGet("/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
+                endpoints.MapPost("/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
             });
 
             app.UseSpa(spa =>
