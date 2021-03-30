@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using shipments_viz.Controllers;
+using System.IO;
 
 namespace shipments_viz
 {
@@ -16,7 +17,7 @@ namespace shipments_viz
         {
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "./UI/public";
+                configuration.RootPath = Path.Combine("..", "UI", "public");
             });
 
             services.AddTransient<JourneyController>();
@@ -50,7 +51,7 @@ namespace shipments_viz
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "./UI";
+                spa.Options.SourcePath = Path.Combine("..", "UI");
 
                 if (env.IsDevelopment())
                 {
