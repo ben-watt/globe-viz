@@ -10,9 +10,6 @@ namespace shipments_viz
 {
     public class Startup
     {
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSpaStaticFiles(configuration =>
@@ -23,12 +20,12 @@ namespace shipments_viz
             services.AddTransient<JourneyController>();
             services.AddHttpClient("journey-store");
 
+            // Only added to the pipeline in development environments
             services.AddCors(options =>
                 options.AddDefaultPolicy(pb =>
                 pb.WithOrigins("http://localhost:8080")));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -39,12 +36,9 @@ namespace shipments_viz
 
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseCloudEvents();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapSubscribeHandler();
-
                 endpoints.MapGet("/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
                 endpoints.MapPost("/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
             });

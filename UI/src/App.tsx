@@ -72,12 +72,13 @@
     ]
 
     interface Loc {
-      name: string
-      coordinates: Array<number>
+      name: string,
+      latitude: number,
+      longitude: number,
     }
 
     interface ArchData {
-      date: number,
+      date: string,
       from: Loc,
       to: Loc
     }
@@ -118,12 +119,12 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        getSourcePosition: (d : ArchData) => d.from.coordinates,
-        getTargetPosition: (d : ArchData) => d.to.coordinates,
+        getSourcePosition: (d : ArchData) => [d.from.latitude, d.from.longitude],
+        getTargetPosition: (d : ArchData) => [d.to.latitude, d.to.longitude],
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: (d : ArchData) =>  { 
-          return Math.floor((d.date - 1615746276338) / 1000);
+          return Math.floor((new Date(d.date) - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
