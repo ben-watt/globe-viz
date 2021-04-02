@@ -119,12 +119,12 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        getSourcePosition: (d : ArchData) => [d.from.latitude, d.from.longitude],
-        getTargetPosition: (d : ArchData) => [d.to.latitude, d.to.longitude],
+        getSourcePosition: (d : ArchData) => [d.from.longitude, d.from.latitude],
+        getTargetPosition: (d : ArchData) => [d.to.longitude, d.to.latitude],
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: (d : ArchData) =>  { 
-          return Math.floor((new Date(d.date) - 1615746276338) / 1000);
+          return Math.floor((new Date(d.date).getDate() - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
