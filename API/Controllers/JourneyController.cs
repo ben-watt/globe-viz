@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using shipments_viz.Domain;
@@ -32,9 +33,8 @@ namespace shipments_viz.Controllers
             try
             {
                 var request = await context.Request.ReadFromJsonAsync<Journy>();
-                // Save the state to a dapr state store
-                var store = _httpClientFactory.CreateClient("journy-store");
-                //var response = await store.PostAsync("");
+                Console.WriteLine("Saved Journy: {0}", JsonSerializer.Serialize(request));
+                // Save to state store?
             } catch(Exception ex) {
                 throw new BadHttpRequestException("Unable to parse request", ex);
             }
