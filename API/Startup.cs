@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using shipments_viz.Controllers;
 using System.IO;
+using shipments_viz.StateStores;
+using shipments_viz.Domain;
 
 namespace shipments_viz
 {
@@ -18,6 +20,10 @@ namespace shipments_viz
             });
 
             services.AddTransient<JourneyController>();
+
+            var journeyStore = new InMemoryStateStore<Journy>();
+            services.AddSingleton<IGetState<Journy>>(journeyStore);
+            services.AddSingleton<IStoreState<Journy>>(journeyStore);
             services.AddHttpClient("journey-store");
 
             // Only added to the pipeline in development environments

@@ -1,10 +1,12 @@
 using System;
+using shipments_viz.StateStores;
 
 namespace shipments_viz.Domain
 {
-    internal record Journy(
+    public record Journy(
+        Guid Id,
         DateTime Date,
         Location From,
         Location To
-    );
+    ) : IEntity;
 }

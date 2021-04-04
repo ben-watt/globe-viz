@@ -3,8 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>shipments_viz</RootNamespace>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+  
 
+
+  
   <ItemGroup>
     <PackageReference Include="Dapr.AspNetCore" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.3" />

@@ -1,6 +1,6 @@
 namespace shipments_viz.Domain
 {
-    internal record Location(
+    public record Location(
         string Name,
         double Longitude,
         double Latitude

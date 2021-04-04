@@ -1,45 +1,54 @@
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using shipments_viz.Domain;
+using shipments_viz.StateStores;
 
 namespace shipments_viz.Controllers
 {
     public class JourneyController
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IGetState<Journy> _journyStore;
+        private readonly IStoreState<Journy> _save;
 
-        public JourneyController(IHttpClientFactory httpClientFactory)
+        public JourneyController(
+            IGetState<Journy> journyStore,
+            IStoreState<Journy> save)
         {
-            _httpClientFactory = httpClientFactory;
+            _journyStore = journyStore;
+            _save = save;
         }
 
-        public async Task GetJourneys(HttpContext context) {
-            var response = new List<Journy>() {
-                new Journy(
-                    DateTime.Now,
-                    new Location("Manchester", -2.244644, 53.483959),
-                    new Location("California", -122.271604, 37.803664)
-                )
-            };
-
-            await context.Response.WriteAsJsonAsync(response);
+        public async Task GetJourneys(HttpContext context)
+        {
+            if(context.Request.Headers.TryGetValue("If-None-Match", out var eTag) && eTag == _journyStore.ETag)
+            {
+                context.Response.StatusCode = StatusCodes.Status304NotModified;
+            }
+            else
+            {
+                var journeys = await _journyStore.GetAll();
+                context.Response.Headers["ETag"] = _journyStore.ETag;
+                await context.Response.WriteAsJsonAsync(journeys);
+            }
         }
 
-        public async Task SaveJourny(HttpContext context) {
+        public async Task SaveJourny(HttpContext context)
+        {
             try
             {
                 var request = await context.Request.ReadFromJsonAsync<Journy>();
-                Console.WriteLine("Saved Journy: {0}", JsonSerializer.Serialize(request));
-                // Save to state store?
+                if(request != null)
+                {
+                    var newJourny = request with { Id = Guid.NewGuid() };
+                    await _save.Save(newJourny);
+                    context.Response.StatusCode = StatusCodes.Status201Created;
+                    Console.WriteLine("Saved Journy: {0}", JsonSerializer.Serialize(newJourny));
+                }
             } catch(Exception ex) {
                 throw new BadHttpRequestException("Unable to parse request", ex);
             }
-
-            context.Response.StatusCode = StatusCodes.Status201Created;
         }
     }
 }
