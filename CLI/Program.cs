@@ -77,8 +77,8 @@ namespace CLI
 
         internal record Location(
             string Name,
-            double Longitude,
-            double Latitude
+            double Latitude,
+            double Longitude
         );
 
         internal class RandomLocation

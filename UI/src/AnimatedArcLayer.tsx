@@ -23,19 +23,26 @@
 
   const fsColorFilter = `
   float tripDuration = 5.0;
-
-  // start = 0, end = 1;
   float normalisedArch = fract(geometry.uv.x);
+  float dateDiff = currentTime - vDate;
 
-  // Position as a percentage of where the head is on the curve
- 
-  float rMax = smoothstep(0.0, tripDuration, currentTime - vDate);
+  // Head of the trip animation curve
+  float rMax = smoothstep(0.0, tripDuration, dateDiff);
 
-  // Tail of the trip (alpha = 0.0)
-  float rMin = 0.0;
+  // Tail of the trip animation curve
+  float rMin = smoothstep(tripDuration, tripDuration + tripDuration, dateDiff);
 
   // Only colour in from rMin to rMax
-  float alpha = (normalisedArch > rMax ? 0.0 : 1.0);
+  float alpha = 0.0;
+  bool animationHasFinished = dateDiff > tripDuration;
+  if(!animationHasFinished) 
+  {
+    alpha = normalisedArch > rMax ? 0.0 : 1.0;
+  }
+  else
+  {
+    alpha = normalisedArch > rMin ? 1.0 : 0.0;
+  }
 
   if (alpha == 0.0) {
     discard;
@@ -56,6 +63,7 @@
     }
 
     initializeState(params) {
+      console.log(params)
       super.initializeState(params);
       
       this.getAttributeManager().addInstanced({
@@ -67,7 +75,7 @@
       });
     }
     
-    draw(opts) {      
+    draw(opts) {
       this.state.model.setUniforms({
         tailLength: this.props.tailLength,
         animationSpeed: this.props.animationSpeed,

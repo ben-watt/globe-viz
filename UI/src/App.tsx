@@ -45,15 +45,31 @@
     });
 
     const [archData, setArchData] = useState<Array<ArchData>>([]);
+    let etag : string;
     useEffect(() => {
-      async function getData() {
-        let response = await axios.get("http://localhost:5000/journeys")
-        console.log(response.data);
-        setArchData(response.data);
-      }
-      
-      getData();
-    }, []);
+        let intervalId = setInterval(() => {
+          async function getData() {
+            let response = await axios.get<Array<ArchData>>("http://localhost:5000/journeys", { headers: { "If-None-Match": etag }})
+            etag = response.headers.etag;
+
+            if(response.status == 200) {
+              setArchData(curr => { 
+                let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
+                let currentIds = curr.map(x => x.id);
+                let newFetchedArchData = fetchedArchData.filter(x => !currentIds.includes(x.id));
+
+                console.log(fetchedArchData);
+                console.log(curr);
+                return curr?.concat(newFetchedArchData)
+              });
+            }
+          }
+        
+        getData();
+      }, 5000)
+
+      return () =>  clearInterval(intervalId)
+    }, [setArchData]);
 
     // Viewport settings
     const INITIAL_VIEW_STATE = {
@@ -78,6 +94,8 @@
     }
 
     interface ArchData {
+      id: string,
+      fetchedDate: number,
       date: string,
       from: Loc,
       to: Loc
@@ -124,7 +142,7 @@
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: (d : ArchData) =>  { 
-          return Math.floor((new Date(d.date).getDate() - 1615746276338) / 1000);
+          return Math.floor((Date.now() - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],

@@ -28,8 +28,11 @@ namespace shipments_viz
 
             // Only added to the pipeline in development environments
             services.AddCors(options =>
-                options.AddDefaultPolicy(pb =>
-                pb.WithOrigins("http://localhost:8080")));
+                options.AddDefaultPolicy(pb => {
+                    pb.WithExposedHeaders("ETag");
+                    pb.AllowAnyHeader();
+                    pb.WithOrigins("http://localhost:8080");
+            }));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
