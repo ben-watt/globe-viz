@@ -44,32 +44,44 @@
       archTo: "#000000"
     });
 
-    const [archData, setArchData] = useState<Array<ArchData>>([]);
+    function sleep(ms : number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     let etag : string;
-    useEffect(() => {
-        let intervalId = setInterval(() => {
-          async function getData() {
-            let response = await axios.get<Array<ArchData>>("http://localhost:5000/journeys", { headers: { "If-None-Match": etag }})
-            etag = response.headers.etag;
-
-            if(response.status == 200) {
-              setArchData(curr => { 
-                let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
-                let currentIds = curr.map(x => x.id);
-                let newFetchedArchData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-
-                console.log(fetchedArchData);
-                console.log(curr);
-                return curr?.concat(newFetchedArchData)
-              });
-            }
+    let data : Array<any> = [];
+    async function* getData() {
+      while(true) {
+        try {
+          console.log("again")
+          let response = await axios.get<Array<ArchData>>("http://localhost:5000/journeys", { headers: { "If-None-Match": etag }})
+          etag = response.headers.etag;
+  
+          if(response.status == 200 && response.data.length > 0) {
+              console.log("new data!")
+              let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
+              let currentIds = data.map(x => x.id);
+              console.log(currentIds);
+              let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
+              data.push(...newData);
+              console.log(newData);
+              yield newData;
           }
-        
-        getData();
-      }, 5000)
 
-      return () =>  clearInterval(intervalId)
-    }, [setArchData]);
+          await sleep(5000);
+        }
+        catch(ex) {
+          console.log(ex);
+          await sleep(5000);
+        }
+      }
+    }
+
+    // const [archData, setArchData] = useState<Array<ArchData>>([]);
+    // let etag : string;
+    // useEffect(() => {
+        
+    //   }, []);
 
     // Viewport settings
     const INITIAL_VIEW_STATE = {
@@ -129,7 +141,7 @@
         id: 'arc-layer',
         animationSpeed: 10.0,
         tailLength: 1,
-        data: archData,
+        data: getData(),
         pickable: true,
         getWidth: 2,
         widthScale: 1,
