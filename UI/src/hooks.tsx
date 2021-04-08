@@ -34,6 +34,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, (curr: T) => T] {
       }
     };
   
+    //@ts-ignore
     return [storedValue, setValue];
   }
 

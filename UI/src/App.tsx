@@ -77,12 +77,6 @@
       }
     }
 
-    // const [archData, setArchData] = useState<Array<ArchData>>([]);
-    // let etag : string;
-    // useEffect(() => {
-        
-    //   }, []);
-
     // Viewport settings
     const INITIAL_VIEW_STATE = {
       longitude: -2.244644,
@@ -137,6 +131,7 @@
         },
         material: {}
       }),
+      //@ts-ignore
       new AnimatedArcLayer({
         id: 'arc-layer',
         animationSpeed: 10.0,
@@ -176,6 +171,7 @@
     return (
       <div>
         <DeckGL
+          //@ts-ignore
           getTooltip={({ object }) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
           style={{ backgroundColor: colour.background }}
           views={views}
@@ -229,6 +225,7 @@
 
     const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(colour, null, 2));
     function createEventHandler(propName: string) {
+      //@ts-ignore
       return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
     }
 

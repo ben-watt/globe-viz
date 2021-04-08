@@ -50,6 +50,7 @@
   color.a *= alpha;
   `
 
+  //@ts-ignore
   class AnimatedArcLayer extends ArcLayer {
     getShaders() {
       const shaders = super.getShaders();
@@ -62,10 +63,11 @@
       return shaders;
     }
 
-    initializeState(params) {
+    initializeState(params : any) {
       console.log(params)
       super.initializeState(params);
       
+      //@ts-ignore
       this.getAttributeManager().addInstanced({
         instanceDate: {
           size: 1,
@@ -75,14 +77,18 @@
       });
     }
     
-    draw(opts) {
+    draw(opts : any) {
+      //@ts-ignore
       this.state.model.setUniforms({
+        //@ts-ignore
         tailLength: this.props.tailLength,
+        //@ts-ignore
         animationSpeed: this.props.animationSpeed,
         currentTime: (Date.now() - 1615746276338) / 1000,
       });
 
       super.draw(opts);
+      //@ts-ignore
       this.setNeedsRedraw();
     }
   }
