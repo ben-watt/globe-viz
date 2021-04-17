@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from 'react';
+  import React, { useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
   import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
@@ -7,10 +7,10 @@
   import hexRgb from 'hex-rgb';
   import { useLocalStorage } from './hooks';
   import GL from '@luma.gl/constants';
-  import axios from 'axios';
-
-  import "./App.css";
   import type { RGBAColor } from 'deck.gl';
+  import axios from 'axios';
+  
+  const NODE_ENV = import.meta.env.NODE_ENV;
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -53,21 +53,21 @@
     async function* getData() {
       while(true) {
         try {
-          console.log("again")
-          let response = await axios.get<Array<ArchData>>("http://localhost:5000/journeys", { headers: { "If-None-Match": etag }})
-          etag = response.headers.etag;
-  
-          if(response.status == 200 && response.data.length > 0) {
-              console.log("new data!")
-              let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
-              let currentIds = data.map(x => x.id);
-              console.log(currentIds);
-              let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-              data.push(...newData);
-              console.log(newData);
-              yield newData;
+          if(NODE_ENV == "production") {
+            let response = await axios.get<Array<ArchData>>("/api/journeys", { headers: { "If-None-Match": etag }})
+            etag = response.headers.etag;
+    
+            if(response.status == 200 && response.data.length > 0) {
+                console.debug("new data")
+                let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
+                let currentIds = data.map(x => x.id);
+                console.debug(currentIds);
+                let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
+                data.push(...newData);
+                console.debug(newData);
+                yield newData;
+            }
           }
-
           await sleep(5000);
         }
         catch(ex) {

@@ -25,7 +25,7 @@ namespace shipments_viz
             {
                 if(_env.IsDevelopment())
                 {
-                    configuration.RootPath = Path.Combine("..", "UI", "public");
+                    configuration.RootPath = Path.Combine("..", "ui", "public");
                 }
                 else
                 {
@@ -59,15 +59,14 @@ namespace shipments_viz
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSpaStaticFiles();
             app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/api/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
                 endpoints.MapPost("/api/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
             });
 
+            app.UseSpaStaticFiles();
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = Path.Combine("..", "ui");
