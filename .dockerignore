@@ -1,6 +1,9 @@
+/deploy
+/CLI
+
 **/bin
 **/obj
 **/.vscode
-/UI
-/deploy
-/CLI
+**/node_modules
+**/build
+

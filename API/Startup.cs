@@ -12,11 +12,25 @@ namespace shipments_viz
 {
     public class Startup
     {
+        private readonly IWebHostEnvironment _env;
+
+        public Startup(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = Path.Combine("..", "UI", "public");
+                if(_env.IsDevelopment())
+                {
+                    configuration.RootPath = Path.Combine("..", "UI", "public");
+                }
+                else
+                {
+                    configuration.RootPath = Path.Combine("..", "ui");
+                }
             });
 
             services.AddTransient<JourneyController>();
@@ -26,13 +40,15 @@ namespace shipments_viz
             services.AddSingleton<IStoreState<Journy>>(journeyStore);
             services.AddHttpClient("journey-store");
 
-            // Only added to the pipeline in development environments
-            services.AddCors(options =>
-                options.AddDefaultPolicy(pb => {
-                    pb.WithExposedHeaders("ETag");
-                    pb.AllowAnyHeader();
-                    pb.WithOrigins("http://localhost:8080");
-            }));
+            if(_env.IsDevelopment())
+            {
+                services.AddCors(options =>
+                    options.AddDefaultPolicy(pb => {
+                        pb.WithExposedHeaders("ETag");
+                        pb.AllowAnyHeader();
+                        pb.WithOrigins("http://localhost:8080");
+                }));
+            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -43,18 +59,18 @@ namespace shipments_viz
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
-                endpoints.MapPost("/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
+                endpoints.MapGet("/api/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
+                endpoints.MapPost("/api/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
             });
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = Path.Combine("..", "UI");
+                spa.Options.SourcePath = Path.Combine("..", "ui");
 
                 if (env.IsDevelopment())
                 {

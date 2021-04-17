@@ -1,5 +1,12 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
-module.exports = {
+module.exports = {   
+  plugins: {
+    optimize: {
+      bundle: true,
+      minify: true,
+      target: 'es2018',
+    },
+  },
   mount: {
     public: {url: '/', static: true},
     src: {url: '/dist'},
