@@ -4,7 +4,6 @@
   attribute float instanceDate;
   varying float vDate;
   varying float vArcLength;
-  float test;
   `
 
   const vsMain = `
