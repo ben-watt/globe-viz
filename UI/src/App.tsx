@@ -178,7 +178,7 @@
           initialViewState={INITIAL_VIEW_STATE}
           controller={true}
           effects={[lightingEffect]}
-          layers={[layers[1]]} />
+          layers={layers} />
         <Menu colour={colour} setColour={setColour}/>
       </div>
     )
