@@ -68,12 +68,12 @@
                 yield newData;
             }
           }
-          await sleep(5000);
         }
         catch(ex) {
           console.log(ex);
-          await sleep(5000);
         }
+
+        await sleep(500);
       }
     }
 
@@ -134,8 +134,6 @@
       //@ts-ignore
       new AnimatedArcLayer({
         id: 'arc-layer',
-        animationSpeed: 10.0,
-        tailLength: 1,
         data: getData(),
         pickable: true,
         getWidth: 2,
@@ -148,8 +146,8 @@
         getTargetPosition: (d : ArchData) => [d.to.longitude, d.to.latitude],
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
-        getDate: (d : ArchData) =>  { 
-          return Math.floor((Date.now() - 1615746276338) / 1000);
+        getDate: (d : ArchData) =>  {
+          return Math.floor((new Date(d.date).getDate() - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
