@@ -12,7 +12,6 @@
   `
 
   const fsDeclaration = `
-  uniform float tailLength;
   uniform float currentTime;
 
   varying float vArcLength;
@@ -78,8 +77,6 @@
     draw(opts : any) {
       //@ts-ignore
       this.state.model.setUniforms({
-        //@ts-ignore
-        tailLength: this.props.tailLength,
         currentTime: (Date.now() - 1615746276338) / 1000,
       });
 
