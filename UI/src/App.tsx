@@ -37,11 +37,11 @@
   const App = ({ }: AppProps) => {
 
     const [colour, setColour] = useLocalStorage<ColourState>('colour', {
-      background: "#000000",
-      globeLand: "#000000",
-      globeSea: "#000000",
-      archFrom: "#000000",
-      archTo: "#000000"
+      "background": "#000000",
+      "globeLand": "#0d0d0d",
+      "globeSea": "#333333",
+      "archFrom": "#ff00ea",
+      "archTo": "#ffffff"
     });
 
     function sleep(ms : number) {

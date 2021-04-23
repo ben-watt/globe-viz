@@ -62,12 +62,12 @@ namespace CLI
             var threeSeconds = new TimeSpan(0, 0, 3);
             var client = new HttpClient()
             {
-                BaseAddress = new Uri("http://localhost:5000"),
+                BaseAddress = new Uri("http://localhost:8000"),
                 Timeout = threeSeconds,
             };
 
             var journy = new Journy(DateTime.Now, _randomLocation.Next(), _randomLocation.Next());
-            await client.PostAsJsonAsync("/journy", journy);
+            await client.PostAsJsonAsync("/api/journy", journy);
         }
 
         internal record Journy(
