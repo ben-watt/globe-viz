@@ -28,6 +28,9 @@ namespace CLI
     {
         [CommandArgument(0, "<count>")]
         public int JourneyCount { get; set; }
+
+        [CommandArgument(0, "<uri>")]
+        public string Uri { get; set; }
     }
 
     internal class Create : Command<Options>
@@ -48,7 +51,7 @@ namespace CLI
 
                 while (!ctx.IsFinished)
                 {
-                    await CreateJourney();
+                    await CreateJourney(settings.Uri);
                     await Task.Delay(1000);
                     task1.Increment(100 / settings.JourneyCount);
                 }
@@ -57,12 +60,12 @@ namespace CLI
             return 0;
         }
 
-        private async Task CreateJourney()
+        private async Task CreateJourney(string uri)
         {
             var threeSeconds = new TimeSpan(0, 0, 3);
             var client = new HttpClient()
             {
-                BaseAddress = new Uri("http://localhost:8000"),
+                BaseAddress = new Uri(uri),
                 Timeout = threeSeconds,
             };
 
