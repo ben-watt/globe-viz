@@ -1,4 +1,4 @@
-  import React, { useState } from 'react';
+  import React, { useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
   import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
@@ -44,37 +44,56 @@
       "archTo": "#ffffff"
     });
 
-    function sleep(ms : number) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
-    let etag : string;
     let data : Array<any> = [];
-    async function* getData() {
-      while(true) {
-        try {
-          if(NODE_ENV == "production") {
-            let response = await axios.get<Array<ArchData>>("/api/journeys", { headers: { "If-None-Match": etag }})
-            etag = response.headers.etag;
     
-            if(response.status == 200 && response.data.length > 0) {
-                console.debug("new data")
-                let fetchedArchData = response.data.map(x => ({ ...x, fetchedDate: Date.now() }));
-                let currentIds = data.map(x => x.id);
-                console.debug(currentIds);
-                let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-                data.push(...newData);
-                console.debug(newData);
-                yield newData;
-            }
+    let [requestCount, setRequestCount] = useState(0);
+    let [archData, setArchData] = useState<ArchData[]>([]);
+    let [etag, setEtag] = useState<string>("");
+
+    useEffect(() => {
+      const runEffect = async () => {
+          let newData = await requestData();
+          if(newData.length != 0) {
+            setArchData(curr => curr.concat(newData))
+          }
+
+          let timeOut = setTimeout(() => setRequestCount(curr => curr + 1), 500);
+          return () => clearTimeout(timeOut);
+      };
+
+      runEffect();
+    }, [requestCount]);
+
+    async function requestData() : Promise<ArchData[]> {
+      try {
+        if(NODE_ENV == "production" || colour.background == "#000000") {
+          const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
+          let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
+          let response = await axios.get<Array<ArchData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
+          setEtag(response.headers.etag);
+
+          console.log(response.data)
+
+          if(response.status == 200 && response.data.length > 0) {
+              console.log(response.data)
+              console.log("new data")
+              let fetchedArchData = response.data
+              fetchedArchData.forEach(x => x.fetchedDate = Date.now());
+              let currentIds = data.map(x => x.id);
+              console.debug(currentIds);
+              let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
+              data.push(...newData);
+              console.debug(newData);
+              return newData;
           }
         }
-        catch(ex) {
-          console.log(ex);
-        }
-
-        await sleep(500);
       }
+      catch(ex) {
+        console.log(ex);
+      }
+
+      return Array<ArchData>();
     }
 
     // Viewport settings
@@ -134,7 +153,7 @@
       //@ts-ignore
       new AnimatedArcLayer({
         id: 'arc-layer',
-        data: getData(),
+        data: archData,
         pickable: true,
         getWidth: 2,
         widthScale: 1,
@@ -147,7 +166,7 @@
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: (d : ArchData) =>  {
-          return Math.floor((new Date(d.date).getDate() - 1615746276338) / 1000);
+          return Math.floor((d.fetchedDate - 1615746276338) / 1000);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],
@@ -289,10 +308,10 @@
     </svg>
 
 
-type CrossIconProps = {
-  className: string,
-  onClick: React.MouseEventHandler
-}
+  type CrossIconProps = {
+    className: string,
+    onClick: React.MouseEventHandler
+  }
 
   const CrossIcon = ({ className, onClick } : CrossIconProps) => {
     return (

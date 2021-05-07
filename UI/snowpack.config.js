@@ -1,5 +1,9 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
+  env: {
+    SERVER_HOST: 'localhost',
+    SERVER_PORT: '5000',
+  },
   plugins: {
     optimize: {
       bundle: true,
