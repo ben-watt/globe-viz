@@ -45,8 +45,6 @@
     });
 
 
-    let data : Array<any> = [];
-    
     let [requestCount, setRequestCount] = useState(0);
     let [archData, setArchData] = useState<ArchData[]>([]);
     let [etag, setEtag] = useState<string>("");
@@ -76,15 +74,12 @@
           console.log(response.data)
 
           if(response.status == 200 && response.data.length > 0) {
-              console.log(response.data)
-              console.log("new data")
               let fetchedArchData = response.data
               fetchedArchData.forEach(x => x.fetchedDate = Date.now());
-              let currentIds = data.map(x => x.id);
+              let currentIds = archData.map(x => x.id);
               console.debug(currentIds);
               let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-              data.push(...newData);
-              console.debug(newData);
+              console.log(newData);
               return newData;
           }
         }
