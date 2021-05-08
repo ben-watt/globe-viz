@@ -56,7 +56,7 @@
             setArchData(curr => curr.concat(newData))
           }
 
-          let timeOut = setTimeout(() => setRequestCount(curr => curr + 1), 500);
+          let timeOut = setTimeout(() => setRequestCount(curr => curr + 1), 1000);
           return () => clearTimeout(timeOut);
       };
 
@@ -161,7 +161,7 @@
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
         getDate: (d : ArchData) =>  {
-          return Math.floor((d.fetchedDate - 1615746276338) / 1000);
+          return Math.floor((d.fetchedDate - 1615746276338) / 100);
         },
         updateTriggers: {
           getSourceColor: [colour.archFrom],

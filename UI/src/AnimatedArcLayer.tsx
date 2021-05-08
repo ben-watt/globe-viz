@@ -19,9 +19,10 @@
   `
 
   const fsColorFilter = `
-  float tripDuration = 5.0;
+  // Duration of trip in seconds * multiplier;
+  float tripDuration = 5.0 * 100.0;
   float normalisedArch = fract(geometry.uv.x);
-  float dateDiff = currentTime - vDate;
+  float dateDiff = (currentTime - vDate) * 10.0;
 
   // Head of the trip animation curve
   float rMax = smoothstep(0.0, tripDuration, dateDiff);
@@ -75,9 +76,10 @@
     }
     
     draw(opts : any) {
+      console.log("draw");
       //@ts-ignore
       this.state.model.setUniforms({
-        currentTime: (Date.now() - 1615746276338) / 1000,
+        currentTime: (Date.now() - 1615746276338) / 100,
       });
 
       super.draw(opts);
