@@ -48,7 +48,7 @@ import type { ColourState, DevSettings, Settings } from './Settings';
     }
 
     return (
-      <div className="bg-blue-500 flex-col w-52 px-5 py-5 rounded-r-md">
+      <div className="bg-gray-400 bg-opacity-50 flex-col w-52 px-5 py-5 rounded-r-md">
         <CrossIcon className="cursor-pointer w-8" onClick={() => setIsOpen(false)}/>
         <div id="colour" className="py-5">
             <fieldset className="flex justify-between cursor-pointer">
@@ -93,17 +93,7 @@ import type { ColourState, DevSettings, Settings } from './Settings';
             </fieldset>
         </div>
         <div id="devSettings">
-            <div className="flex flex-col">
-                <label htmlFor="unchecked" className="mt-3 inline-flex items-center cursor-pointer">
-                    <span className="relative">
-                    <span className="block w-10 h-6 bg-gray-400 rounded-full shadow-inner"></span>
-                    <span className="absolute block w-4 h-4 mt-1 ml-1 bg-white rounded-full shadow inset-y-0 left-0 focus-within:shadow-outline transition-transform duration-300 ease-in-out">
-                        <input id="unchecked" type="checkbox" className="absolute opacity-0 w-0 h-0" />
-                    </span>
-                    </span>
-                    <span className="ml-3 text-sm">Unchecked</span>
-                </label>
-            </div>
+            <Toggle />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">
@@ -115,6 +105,26 @@ import type { ColourState, DevSettings, Settings } from './Settings';
         </div>
       </div>
     )
+  }
+
+
+  const Toggle = (initialState: boolean = false) => {
+      const [enabled, setEnabled] = useState(initialState);
+
+      return (
+        <div className="flex flex-col">
+            <label htmlFor="toggle" className="mt-3 inline-flex items-center cursor-pointer justify-between">
+                <span>Fake Data</span>
+                <span className="relative">
+                    <div className={`w-10 h-5 rounded-full shadow-inner ${enabled ? "bg-white" : "bg-gray-400"}`}>
+                        <div className={`relative w-5 h-5 rounded-full shadow transition-transform duration-300 ease-in-out ${enabled ?  "bg-purple-600 transform translate-x-full" : "bg-white"}`}>
+                            <input onChange={() => setEnabled(!enabled)} checked id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
+                        </div>
+                    </div>
+                </span>
+            </label>
+        </div>
+      )
   }
 
   const SettingsIcon = () => 
