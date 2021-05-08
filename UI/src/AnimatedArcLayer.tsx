@@ -76,7 +76,6 @@
     }
     
     draw(opts : any) {
-      console.log("draw");
       //@ts-ignore
       this.state.model.setUniforms({
         currentTime: (Date.now() - 1615746276338) / 100,

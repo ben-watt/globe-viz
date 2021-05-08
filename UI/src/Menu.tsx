@@ -48,55 +48,70 @@ import type { ColourState, DevSettings, Settings } from './Settings';
     }
 
     return (
-      <div className="bg-white flex-col w-52 px-5 py-5 rounded">
+      <div className="bg-blue-500 flex-col w-52 px-5 py-5 rounded-r-md">
         <CrossIcon className="cursor-pointer w-8" onClick={() => setIsOpen(false)}/>
-        <div className="py-5">
-          <fieldset className="flex justify-between cursor-pointer">
-            <label htmlFor="background">Background</label>
-            <input id="background"
-              name="background"
-              type="color"
-              value={colour.background}
-              onChange={createEventHandler("background")} />
-          </fieldset>
-          <fieldset className="flex justify-between">
-            <label htmlFor="globe-sea">Globe Sea</label>
-            <input id="globe-sea"
-              name="globe-sea"
-              type="color"
-              value={colour.globeSea}
-              onChange={createEventHandler("globeSea")} />
-          </fieldset>
-          <fieldset className="flex justify-between">
-            <label htmlFor="globe-land">Globe Land</label>
-            <input id="globe-land" 
-              name="globe-land" 
-              type="color" 
-              value={colour.globeSea}
-              onChange={createEventHandler("globeLand")} />
-          </fieldset>
-          <fieldset className="flex justify-between">
-            <label htmlFor="arch-from">Arch From</label>
-            <input id="arch-from" 
-              name="arch-from" 
-              type="color" 
-              value={colour.archFrom}
-              onChange={createEventHandler("archFrom")} />
-          </fieldset>
-          <fieldset className="flex justify-between">
-            <label htmlFor="arch-to">Arch To</label>
-            <input id="arch-to" 
-              name="arch-to" 
-              type="color" 
-              value={colour.archTo}
-              onChange={createEventHandler("archTo")} />
-          </fieldset>
+        <div id="colour" className="py-5">
+            <fieldset className="flex justify-between cursor-pointer">
+                <label htmlFor="background">Background</label>
+                <input id="background"
+                name="background"
+                type="color"
+                value={colour.background}
+                onChange={createEventHandler("background")} />
+            </fieldset>
+            <fieldset className="flex justify-between">
+                <label htmlFor="globe-sea">Globe Sea</label>
+                <input id="globe-sea"
+                name="globe-sea"
+                type="color"
+                value={colour.globeSea}
+                onChange={createEventHandler("globeSea")} />
+            </fieldset>
+            <fieldset className="flex justify-between">
+                <label htmlFor="globe-land">Globe Land</label>
+                <input id="globe-land" 
+                name="globe-land" 
+                type="color" 
+                value={colour.globeSea}
+                onChange={createEventHandler("globeLand")} />
+            </fieldset>
+            <fieldset className="flex justify-between">
+                <label htmlFor="arch-from">Arch From</label>
+                <input id="arch-from" 
+                name="arch-from" 
+                type="color" 
+                value={colour.archFrom}
+                onChange={createEventHandler("archFrom")} />
+            </fieldset>
+            <fieldset className="flex justify-between">
+                <label htmlFor="arch-to">Arch To</label>
+                <input id="arch-to" 
+                name="arch-to" 
+                type="color" 
+                value={colour.archTo}
+                onChange={createEventHandler("archTo")} />
+            </fieldset>
         </div>
-        <div className="pt-5 flex justify-between">
-          <a href={"data:" + colourJson} download="shipment_viz_colour.json">
-            <button onClick={() => console.log(JSON.stringify(colour, null, 2))} className="bg-black text-white px-2 py-1 hover:bg-gray-700">Download</button>
-          </a>
-          <button className="bg-black text-white px-2 py-1 hover:bg-gray-700">Upload</button>
+        <div id="devSettings">
+            <div className="flex flex-col">
+                <label htmlFor="unchecked" className="mt-3 inline-flex items-center cursor-pointer">
+                    <span className="relative">
+                    <span className="block w-10 h-6 bg-gray-400 rounded-full shadow-inner"></span>
+                    <span className="absolute block w-4 h-4 mt-1 ml-1 bg-white rounded-full shadow inset-y-0 left-0 focus-within:shadow-outline transition-transform duration-300 ease-in-out">
+                        <input id="unchecked" type="checkbox" className="absolute opacity-0 w-0 h-0" />
+                    </span>
+                    </span>
+                    <span className="ml-3 text-sm">Unchecked</span>
+                </label>
+            </div>
+        </div>
+        <div id="download">
+            <div className="pt-5 flex justify-between">
+                <a href={"data:" + colourJson} download="shipment_viz_colour.json">
+                    <button onClick={() => console.log(JSON.stringify(colour, null, 2))} className="bg-black text-white px-2 py-1 hover:bg-gray-700">Download</button>
+                </a>
+                <button className="bg-black text-white px-2 py-1 hover:bg-gray-700">Upload</button>
+            </div>
         </div>
       </div>
     )

@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 
+// Sets the state and will set an inial value. Intended to be used like context
 function setLocalStorage<T>(key: string, initialValue: T): [T, (curr: T) => T] {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once
@@ -38,9 +39,10 @@ function setLocalStorage<T>(key: string, initialValue: T): [T, (curr: T) => T] {
     return [storedValue, setValue];
 }
 
+// Will return the global state from storage if available and will thrown if the
+// value has not been set previously. Ensure setLocalStorage has been called
+// higher up the DOM model with an inial value, prior to calling this hook.
 function useLocalStorage<T>(key: string): [T, (curr: T) => T] {
-  // State to store our value
-  // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
