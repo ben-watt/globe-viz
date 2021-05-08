@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import type { ColourState, DevSettings, Settings } from './Settings';
+import { Toggle } from './Toggle';
   
   type MenuProps = {
     settings: Settings
@@ -108,24 +109,7 @@ import type { ColourState, DevSettings, Settings } from './Settings';
   }
 
 
-  const Toggle = (initialState: boolean = false) => {
-      const [enabled, setEnabled] = useState(initialState);
-
-      return (
-        <div className="flex flex-col">
-            <label htmlFor="toggle" className="mt-3 inline-flex items-center cursor-pointer justify-between">
-                <span>Fake Data</span>
-                <span className="relative">
-                    <div className={`w-10 h-5 rounded-full shadow-inner ${enabled ? "bg-white" : "bg-gray-400"}`}>
-                        <div className={`relative w-5 h-5 rounded-full shadow transition-transform duration-300 ease-in-out ${enabled ?  "bg-purple-600 transform translate-x-full" : "bg-white"}`}>
-                            <input onChange={() => setEnabled(!enabled)} checked id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
-                        </div>
-                    </div>
-                </span>
-            </label>
-        </div>
-      )
-  }
+  
 
   const SettingsIcon = () => 
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
