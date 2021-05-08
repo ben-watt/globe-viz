@@ -5,17 +5,18 @@ import { Toggle } from './Toggle';
   
   type MenuProps = {
     settings: Settings
-    setColour: (curr: ColourState) => ColourState
+    setColour: (curr: ColourState) => ColourState,
+    setDevSettings: (curr : DevSettings) => DevSettings,
   }
 
-  const Menu = ({ settings, setColour } : MenuProps) => {
+  const Menu = ({ settings, setColour, setDevSettings } : MenuProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
       <div className="absolute">
         { !isOpen 
           ? <MenuIcon isOpen={isOpen} setIsOpen={setIsOpen} /> 
-          : <SettingsMenu settings={settings} setColour={setColour} setIsOpen={setIsOpen} />}
+          : <SettingsMenu settings={settings} setColour={setColour} setIsOpen={setIsOpen} setDevSettings={setDevSettings} />}
       </div>
     )
   }
@@ -36,10 +37,11 @@ import { Toggle } from './Toggle';
   type SettingsMenuProps = {
     settings:  Settings,
     setColour: (curr: ColourState) => ColourState,
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    setDevSettings: (curr : DevSettings) => DevSettings,
   }
 
-  const SettingsMenu = ({ settings, setColour, setIsOpen }: SettingsMenuProps) => {
+  const SettingsMenu = ({ settings, setColour, setIsOpen, setDevSettings }: SettingsMenuProps) => {
 
     const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings.colour, null, 2));
     const colour = settings.colour;
@@ -94,7 +96,7 @@ import { Toggle } from './Toggle';
             </fieldset>
         </div>
         <div id="devSettings">
-            <Toggle />
+            <Toggle stateChanged={(newVal) => { setDevSettings({ createFakeData: newVal }) }} />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">

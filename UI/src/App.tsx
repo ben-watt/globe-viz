@@ -62,25 +62,54 @@
       runEffect();
     }, [requestCount]);
 
+    async function getArchData() : Promise<ArchData[]> {
+      const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
+      let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
+      let response = await axios.get<Array<ArchData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
+      setEtag(response.headers.etag);
+
+      console.log(response.data)
+
+      if(response.status == 200 && response.data.length > 0) {
+          let fetchedArchData = response.data
+          fetchedArchData.forEach(x => x.fetchedDate = Date.now());
+          let currentIds = archData.map(x => x.id);
+          console.debug(currentIds);
+          let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
+          console.log(newData);
+          return newData;
+      }
+      return [];
+    }
+
+    async function getFakeData() : Promise<ArchData[]> {
+      return Promise.resolve([{
+        id: Date.now().toString(),
+        fetchedDate: Date.now(),
+        date: Date.now().toString(),
+        from: {
+          name: "Manchester",
+          latitude: 53.4723271,
+          longitude: -2.2936734,
+        },
+        to: {
+          name: "Hong Kong",
+          latitude: 22.352991,
+          longitude: 113.9872748,
+        }
+      }])
+    }
+
     async function requestData() : Promise<ArchData[]> {
       try {
-        if(NODE_ENV == "production" || colour.background == "#000000") {
-          const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
-          let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
-          let response = await axios.get<Array<ArchData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
-          setEtag(response.headers.etag);
-
-          console.log(response.data)
-
-          if(response.status == 200 && response.data.length > 0) {
-              let fetchedArchData = response.data
-              fetchedArchData.forEach(x => x.fetchedDate = Date.now());
-              let currentIds = archData.map(x => x.id);
-              console.debug(currentIds);
-              let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-              console.log(newData);
-              return newData;
-          }
+        if(NODE_ENV == "production") {
+          return await getArchData();
+        } 
+        else if(devSettings.createFakeData === true) {
+          return await getFakeData();
+        }
+        else {
+          return []
         }
       }
       catch(ex) {
@@ -190,7 +219,7 @@
           controller={true}
           effects={[lightingEffect]}
           layers={layers} />
-        <Menu settings={{ colour, devSettings}} setColour={setColour} />
+        <Menu settings={{ colour, devSettings}} setColour={setColour} setDevSettings={setDevSettings} />
       </div>
     )
   }
