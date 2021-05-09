@@ -43,24 +43,26 @@
       createFakeData: false,
     });
 
-
-    let [requestCount, setRequestCount] = useState(0);
     let [archData, setArchData] = useState<ArchData[]>([]);
     let [etag, setEtag] = useState<string>("");
 
+    function sleep(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     useEffect(() => {
       const runEffect = async () => {
-          let newData = await requestData();
-          if(newData.length != 0) {
-            setArchData(curr => curr.concat(newData))
-          }
-
-          let timeOut = setTimeout(() => setRequestCount(curr => curr + 1), 1000);
-          return () => clearTimeout(timeOut);
+        let newData = await requestData();
+        console.log("request data, new data", newData);
+        if(newData.length != 0) {
+          console.log("setArchData");
+          setArchData(curr => curr.concat(newData))
+        }
       };
-
-      runEffect();
-    }, [requestCount]);
+      
+      let interval = setInterval(() => runEffect(), 5000);
+      return () => clearInterval(interval);
+    }, [devSettings.createFakeData, setArchData]);
 
     async function getArchData() : Promise<ArchData[]> {
       const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
@@ -101,15 +103,14 @@
     }
 
     async function requestData() : Promise<ArchData[]> {
+      console.log("requestData", NODE_ENV, devSettings.createFakeData)
       try {
         if(NODE_ENV == "production") {
           return await getArchData();
         } 
         else if(devSettings.createFakeData === true) {
+          console.log("Created fake data", devSettings.createFakeData);
           return await getFakeData();
-        }
-        else {
-          return []
         }
       }
       catch(ex) {
@@ -149,7 +150,7 @@
       to: Loc
     }
 
-    const layers = [
+    const defaultLayers = [
       new SolidPolygonLayer({
         id: 'background',
         data: [
@@ -173,10 +174,14 @@
         },
         material: {}
       }),
+    ];
+
+    const archLayer = archData.map<AnimatedArcLayer>((chunk, index) => {
+      console.log("create layer with data", chunk);
       //@ts-ignore
-      new AnimatedArcLayer({
-        id: 'arc-layer',
-        data: archData,
+      return new AnimatedArcLayer({
+        id: 'arc-layer-' + index,
+        data: chunk,
         pickable: true,
         getWidth: 2,
         widthScale: 1,
@@ -188,12 +193,10 @@
         getTargetPosition: (d : ArchData) => [d.to.longitude, d.to.latitude],
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
-        getDate: (d : ArchData) =>  {
-          return Math.floor((d.fetchedDate - 1615746276338) / 100);
-        },
+        getDate: (d : ArchData) => d.fetchedDate,
         updateTriggers: {
           getSourceColor: [colour.archFrom],
-          getTargetColor: [colour.archTo]
+          getTargetColor: [colour.archTo],
         },
         parameters: {
           // prevent flicker from z-fighting
@@ -205,9 +208,11 @@
           [GL.BLEND_DST_RGB]: GL.ONE,
           [GL.BLEND_EQUATION]: GL.FUNC_ADD,
         }
-      }),
-    ];
+      });
+    });
 
+    console.log("re-render arch data", archData);
+    console.log("re-render arch layers", archLayer);
     return (
       <div>
         <DeckGL
@@ -218,7 +223,8 @@
           initialViewState={INITIAL_VIEW_STATE}
           controller={true}
           effects={[lightingEffect]}
-          layers={layers} />
+          //@ts-ignore
+          layers={defaultLayers.concat(archLayer)} />
         <Menu settings={{ colour, devSettings}} setColour={setColour} setDevSettings={setDevSettings} />
       </div>
     )
