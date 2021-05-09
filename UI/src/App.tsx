@@ -1,7 +1,7 @@
   import React, { useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
-  import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
+  import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
   import { AnimatedArcLayer } from './AnimatedArcLayer';
   import { AmbientLight, LightingEffect } from 'deck.gl';
   import hexRgb from 'hex-rgb';
@@ -11,6 +11,8 @@
   import axios from 'axios';
   import Menu from './Menu';
   import type { ColourState, DevSettings } from './Settings';
+import type { Layer } from '@deck.gl/core';
+import type { LayerProps } from '@deck.gl/core/lib/layer';
   
   const NODE_ENV = import.meta.env.NODE_ENV;
 
@@ -43,19 +45,14 @@
       createFakeData: false,
     });
 
-    let [archData, setArchData] = useState<ArchData[]>([]);
+    let [archData, setArchData] = useState<ArcData[]>([]);
     let [etag, setEtag] = useState<string>("");
-
-    function sleep(ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     useEffect(() => {
       const runEffect = async () => {
         let newData = await requestData();
-        console.log("request data, new data", newData);
+        console.debug("request data, new data", newData);
         if(newData.length != 0) {
-          console.log("setArchData");
           setArchData(curr => curr.concat(newData))
         }
       };
@@ -64,10 +61,10 @@
       return () => clearInterval(interval);
     }, [devSettings.createFakeData, setArchData]);
 
-    async function getArchData() : Promise<ArchData[]> {
+    async function getArchData() : Promise<ArcData[]> {
       const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
       let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
-      let response = await axios.get<Array<ArchData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
+      let response = await axios.get<Array<ArcData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
       setEtag(response.headers.etag);
 
       console.log(response.data)
@@ -84,7 +81,7 @@
       return [];
     }
 
-    async function getFakeData() : Promise<ArchData[]> {
+    async function getFakeData() : Promise<ArcData[]> {
       return Promise.resolve([{
         id: Date.now().toString(),
         fetchedDate: Date.now(),
@@ -102,14 +99,13 @@
       }])
     }
 
-    async function requestData() : Promise<ArchData[]> {
-      console.log("requestData", NODE_ENV, devSettings.createFakeData)
+    async function requestData() : Promise<ArcData[]> {
+      console.log("requestData:", NODE_ENV, devSettings.createFakeData)
       try {
         if(NODE_ENV == "production") {
           return await getArchData();
         } 
         else if(devSettings.createFakeData === true) {
-          console.log("Created fake data", devSettings.createFakeData);
           return await getFakeData();
         }
       }
@@ -117,7 +113,7 @@
         console.log(ex);
       }
 
-      return Array<ArchData>();
+      return Array<ArcData>();
     }
 
     // Viewport settings
@@ -142,7 +138,7 @@
       longitude: number,
     }
 
-    interface ArchData {
+    interface ArcData {
       id: string,
       fetchedDate: number,
       date: string,
@@ -150,7 +146,7 @@
       to: Loc
     }
 
-    const defaultLayers = [
+    const defaultLayers : Array<any> = [
       new SolidPolygonLayer({
         id: 'background',
         data: [
@@ -176,8 +172,7 @@
       }),
     ];
 
-    const archLayer = archData.map<AnimatedArcLayer>((chunk, index) => {
-      console.log("create layer with data", chunk);
+    const archLayers = archData.map<AnimatedArcLayer>((chunk, index) => {
       //@ts-ignore
       return new AnimatedArcLayer({
         id: 'arc-layer-' + index,
@@ -189,11 +184,10 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        getSourcePosition: (d : ArchData) => [d.from.longitude, d.from.latitude],
-        getTargetPosition: (d : ArchData) => [d.to.longitude, d.to.latitude],
+        getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
+        getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
         getSourceColor: () => hexToArray(colour.archFrom),
         getTargetColor: () => hexToArray(colour.archTo),
-        getDate: (d : ArchData) => d.fetchedDate,
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo],
@@ -211,8 +205,9 @@
       });
     });
 
+    let layers = defaultLayers.concat(archLayers);
     console.log("re-render arch data", archData);
-    console.log("re-render arch layers", archLayer);
+    console.log("Render layers", layers);
     return (
       <div>
         <DeckGL
@@ -223,8 +218,7 @@
           initialViewState={INITIAL_VIEW_STATE}
           controller={true}
           effects={[lightingEffect]}
-          //@ts-ignore
-          layers={defaultLayers.concat(archLayer)} />
+          layers={layers} />
         <Menu settings={{ colour, devSettings}} setColour={setColour} setDevSettings={setDevSettings} />
       </div>
     )
