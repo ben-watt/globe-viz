@@ -11,8 +11,6 @@
   import axios from 'axios';
   import Menu from './Menu';
   import type { ColourState, DevSettings } from './Settings';
-import type { Layer } from '@deck.gl/core';
-import type { LayerProps } from '@deck.gl/core/lib/layer';
   
   const NODE_ENV = import.meta.env.NODE_ENV;
 
@@ -71,7 +69,6 @@ import type { LayerProps } from '@deck.gl/core/lib/layer';
 
       if(response.status == 200 && response.data.length > 0) {
           let fetchedArchData = response.data
-          fetchedArchData.forEach(x => x.fetchedDate = Date.now());
           let currentIds = archData.map(x => x.id);
           console.debug(currentIds);
           let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
@@ -84,7 +81,6 @@ import type { LayerProps } from '@deck.gl/core/lib/layer';
     async function getFakeData() : Promise<ArcData[]> {
       return Promise.resolve([{
         id: Date.now().toString(),
-        fetchedDate: Date.now(),
         date: Date.now().toString(),
         from: {
           name: "Manchester",
@@ -140,7 +136,6 @@ import type { LayerProps } from '@deck.gl/core/lib/layer';
 
     interface ArcData {
       id: string,
-      fetchedDate: number,
       date: string,
       from: Loc,
       to: Loc
@@ -170,6 +165,49 @@ import type { LayerProps } from '@deck.gl/core/lib/layer';
         },
         material: {}
       }),
+      new AnimatedArcLayer({
+        id: 'arc-layer-0',
+        data: [{
+          id: Date.now().toString(),
+          date: Date.now().toString(),
+          from: {
+            name: "Manchester",
+            latitude: 53.4723271,
+            longitude: -2.2936734,
+          },
+          to: {
+            name: "Hong Kong",
+            latitude: 22.352991,
+            longitude: 113.9872748,
+          }
+        }],
+        pickable: true,
+        getWidth: 2,
+        widthScale: 1,
+        autoHighlight: true,
+        getHeight: 0.5,
+        greatCircle: true,
+        color: colour.archFrom,
+        getDate: (d : ArcData) => Date.now(),
+        getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
+        getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
+        getSourceColor: hexToArray(colour.archFrom),
+        getTargetColor: hexToArray(colour.archTo),
+        updateTriggers: {
+          getSourceColor: [colour.archFrom],
+          getTargetColor: [colour.archTo],
+        },
+        parameters: {
+          // prevent flicker from z-fighting
+          [GL.DEPTH_TEST]: true,
+
+          // turn on additive blending to make them look more glowy
+          [GL.BLEND]: true,
+          [GL.BLEND_SRC_RGB]: GL.ONE,
+          [GL.BLEND_DST_RGB]: GL.ONE,
+          [GL.BLEND_EQUATION]: GL.FUNC_ADD,
+        }
+      })
     ];
 
     const archLayers = archData.map<AnimatedArcLayer>((chunk, index) => {

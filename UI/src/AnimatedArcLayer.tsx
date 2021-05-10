@@ -1,18 +1,22 @@
   import { ArcLayer } from '@deck.gl/layers';
 
   const vsDeclaration = `
+  attribute float instanceDate;
+  varying float vDate;
   `
 
   const vsMain = `
+  vDate = instanceDate;
   `
 
   const fsDeclaration = `
-  uniform float time;
+  uniform float currentTime;
+  varying float vDate;
   `
 
   const fsColorFilter = `
   float tripDuration = 10.0;
-  float dateDiff = 5.0;
+  float dateDiff = currentTime - vDate;
   float delay = 0.0;
   float normalisedArch = fract(geometry.uv.x);
 
@@ -34,15 +38,40 @@
     alpha = normalisedArch > rMin ? 1.0 : 0.0;
   }
 
-  // if (alpha == 0.0) {
-  //   discard;
-  // }
+  if (alpha == 0.0) {
+    discard;
+  }
 
-  color.a *= 1.0; //alpha;
+  color.a *= alpha;
   `
 
   //@ts-ignore
-  class AnimatedArcLayer extends ArcLayer {
+  class AnimatedArcLayer<P> extends ArcLayer {
+    constructor(params: P) {
+      super(params);
+    }
+
+    initializeState(params : any) {
+      console.log("AnimatedArcLayer.initializeState", params)
+      super.initializeState(params);
+      
+
+
+      //@ts-ignore
+      this.getAttributeManager().addInstanced({
+        instanceDate: {
+          size: 1,
+          accessor: 'getDate',
+          transform: this.normaliseTime,
+          defaultValue: this.normaliseTime(Date.now()),
+        },
+      });
+    }
+
+    normaliseTime(date: number) {
+      return (date / 1000) - 1620677383
+    }
+
     getShaders() {
       const shaders = super.getShaders();
       shaders.inject = {
@@ -54,22 +83,14 @@
       return shaders;
     }
 
-    initializeState(params : any) {
-      console.log("AnimatedArcLayer.initializeState", params)
-      super.initializeState(params);
-      
-      //@ts-ignore
-      this.getAttributeManager().addInstanced({
-        instanceDate: {
-          size: 1,
-          accessor: 'getDate',
-          defaultValue: 0.0
-        },
-      });
-    }
-
     draw(opts : any) {
       super.draw(opts);
+
+      //@ts-ignore
+      this.state.model.setUniforms({
+        currentTime: this.normaliseTime(Date.now()),
+      });
+
       //@ts-ignore
       this.setNeedsRedraw();
     }
