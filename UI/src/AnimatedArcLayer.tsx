@@ -46,17 +46,11 @@
   `
 
   //@ts-ignore
-  class AnimatedArcLayer<P> extends ArcLayer {
-    constructor(params: P) {
-      super(params);
-    }
-
+  class AnimatedArcLayer extends ArcLayer {
     initializeState(params : any) {
       console.log("AnimatedArcLayer.initializeState", params)
       super.initializeState(params);
       
-
-
       //@ts-ignore
       this.getAttributeManager().addInstanced({
         instanceDate: {

@@ -164,49 +164,6 @@
           getFillColor: [colour.globeLand]
         },
         material: {}
-      }),
-      new AnimatedArcLayer({
-        id: 'arc-layer-0',
-        data: [{
-          id: Date.now().toString(),
-          date: Date.now().toString(),
-          from: {
-            name: "Manchester",
-            latitude: 53.4723271,
-            longitude: -2.2936734,
-          },
-          to: {
-            name: "Hong Kong",
-            latitude: 22.352991,
-            longitude: 113.9872748,
-          }
-        }],
-        pickable: true,
-        getWidth: 2,
-        widthScale: 1,
-        autoHighlight: true,
-        getHeight: 0.5,
-        greatCircle: true,
-        color: colour.archFrom,
-        getDate: (d : ArcData) => Date.now(),
-        getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
-        getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
-        getSourceColor: hexToArray(colour.archFrom),
-        getTargetColor: hexToArray(colour.archTo),
-        updateTriggers: {
-          getSourceColor: [colour.archFrom],
-          getTargetColor: [colour.archTo],
-        },
-        parameters: {
-          // prevent flicker from z-fighting
-          [GL.DEPTH_TEST]: true,
-
-          // turn on additive blending to make them look more glowy
-          [GL.BLEND]: true,
-          [GL.BLEND_SRC_RGB]: GL.ONE,
-          [GL.BLEND_DST_RGB]: GL.ONE,
-          [GL.BLEND_EQUATION]: GL.FUNC_ADD,
-        }
       })
     ];
 
@@ -222,10 +179,11 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
+        getDate: (d : ArcData) => Date.now(),
         getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
         getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
-        getSourceColor: () => hexToArray(colour.archFrom),
-        getTargetColor: () => hexToArray(colour.archTo),
+        getSourceColor: hexToArray(colour.archFrom),
+        getTargetColor: hexToArray(colour.archTo),
         updateTriggers: {
           getSourceColor: [colour.archFrom],
           getTargetColor: [colour.archTo],
