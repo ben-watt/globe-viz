@@ -66,4 +66,3 @@ declare module "@deck.gl/core" {
   import View from "@deck.gl/core/views/view";
 	export class _GlobeView extends View {};
 }
-

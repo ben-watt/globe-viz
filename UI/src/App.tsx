@@ -11,8 +11,8 @@
   import axios from 'axios';
   import Menu from './Menu';
   import type { ColourState, DevSettings } from './Settings';
-import deckGl from 'deck.gl';
-  
+  import cities from './cities.json';  
+
   const NODE_ENV = import.meta.env.NODE_ENV;
 
   const ambientLight = new AmbientLight({
@@ -79,19 +79,26 @@ import deckGl from 'deck.gl';
       return [];
     }
 
-    async function getFakeData() : Promise<ArcData[]> {
+    function getRandomNumber(maxValue :number) {
+      return Math.floor(Math.random() * maxValue);
+    }
+
+    async function getFakeData(cities :Array<any>) : Promise<ArcData[]> {
+      let startingCity = cities[getRandomNumber(cities.length)];
+      let endingCity = cities[getRandomNumber(cities.length)];
+
       return Promise.resolve([{
         id: Date.now().toString(),
         date: Date.now().toString(),
         from: {
-          name: "Manchester",
-          latitude: 53.4723271,
-          longitude: -2.2936734,
+          name: startingCity.name,
+          latitude: Number.parseFloat(startingCity.lat),
+          longitude: Number.parseFloat(startingCity.lng),
         },
         to: {
-          name: "Hong Kong",
-          latitude: 22.352991,
-          longitude: 113.9872748,
+          name: endingCity.name,
+          latitude: Number.parseFloat(endingCity.lat),
+          longitude: Number.parseFloat(endingCity.lng),
         }
       }])
     }
@@ -103,7 +110,7 @@ import deckGl from 'deck.gl';
           return await getArchData();
         } 
         else if(devSettings.createFakeData === true) {
-          return await getFakeData();
+          return await getFakeData(cities);
         }
       }
       catch(ex) {
