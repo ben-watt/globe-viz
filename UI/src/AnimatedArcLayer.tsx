@@ -55,7 +55,7 @@
       this.getAttributeManager().addInstanced({
         instanceDate: {
           size: 1,
-          accessor: 'getDate',
+          accessor: 'getRenderDate',
           transform: this.normaliseTime,
           defaultValue: this.normaliseTime(Date.now()),
         },

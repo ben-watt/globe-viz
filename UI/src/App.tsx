@@ -11,6 +11,7 @@
   import axios from 'axios';
   import Menu from './Menu';
   import type { ColourState, DevSettings } from './Settings';
+import deckGl from 'deck.gl';
   
   const NODE_ENV = import.meta.env.NODE_ENV;
 
@@ -43,7 +44,7 @@
       createFakeData: false,
     });
 
-    let [archData, setArchData] = useState<ArcData[]>([]);
+    let [archData, setArchData] = useState<ArcData[][]>([]);
     let [etag, setEtag] = useState<string>("");
 
     useEffect(() => {
@@ -51,7 +52,7 @@
         let newData = await requestData();
         console.debug("request data, new data", newData);
         if(newData.length != 0) {
-          setArchData(curr => curr.concat(newData))
+          setArchData(curr => [...curr, newData])
         }
       };
       
@@ -69,7 +70,7 @@
 
       if(response.status == 200 && response.data.length > 0) {
           let fetchedArchData = response.data
-          let currentIds = archData.map(x => x.id);
+          let currentIds = archData.flatMap(x => x.map(y => y.id));
           console.debug(currentIds);
           let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
           console.log(newData);
@@ -164,7 +165,7 @@
           getFillColor: [colour.globeLand]
         },
         material: {}
-      })
+      }),
     ];
 
     const archLayers = archData.map<AnimatedArcLayer>((chunk, index) => {
@@ -179,7 +180,7 @@
         getHeight: 0.5,
         greatCircle: true,
         color: colour.archFrom,
-        getDate: (d : ArcData) => Date.now(),
+        getRenderDate: (d : ArcData) => Date.now(),
         getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
         getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
         getSourceColor: hexToArray(colour.archFrom),
