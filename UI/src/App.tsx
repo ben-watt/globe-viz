@@ -26,7 +26,7 @@ import { PointLight } from '@deck.gl/core';
   const pointLight = new DirectionalLight({
     color: [255, 255, 255],
     intensity: 1.0,
-    direction: [-10, -100, -20]
+    direction: [-10, -120, -20]
   });
 
   const lightingEffect = new LightingEffect({ ambientLight, pointLight })
@@ -132,10 +132,10 @@ import { PointLight } from '@deck.gl/core';
     const transitionInterpolator = new LinearInterpolator(['longitude']);
     const [initialViewState, setInitialViewState] = useState({
       longitude: -2.244644,
-      latitude: 53.483959,
-      zoom: 1,
+      latitude: 35.483959,
+      zoom: 1.5,
       pitch: 0,
-      bearing: 10,
+      bearing: 0,
     });
 
     const rotateCamera = useCallback(() => {
