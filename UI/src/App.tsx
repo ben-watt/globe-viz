@@ -20,7 +20,7 @@ import { PointLight } from '@deck.gl/core';
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
-    intensity: 0.0
+    intensity: 0.5
   });
 
   const pointLight = new DirectionalLight({
@@ -181,12 +181,12 @@ import { PointLight } from '@deck.gl/core';
         opacity: 1,
         getFillColor: hexToArray(colour.globeSea) as RGBAColor,
         extruded: true,
-        // material: {
-        //   ambient: 0.35,
-        //   diffuse: 0.6,
-        //   shininess: 32,
-        //   specularColor: [255, 255, 255]
-        // }
+        material: {
+          ambient: 0.2,
+          diffuse: 0.6,
+          shininess: 229,
+          specularColor: [255, 255, 255]
+        }
       }),
       new GeoJsonLayer({
         id: 'earth-land',
@@ -199,7 +199,13 @@ import { PointLight } from '@deck.gl/core';
           getFillColor: [colour.globeLand]
         },
         extruded: true,
-        material: {}
+        elevationScale: 10,
+        material: {
+          ambient: 0.3,
+          diffuse: 0.9,
+          shininess: 50,
+          specularColor: [255, 255, 255]
+        }
       }),
     ];
 
