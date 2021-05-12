@@ -13,15 +13,23 @@
   import type { ColourState, DevSettings } from './Settings';
   import cities from './cities.json';  
 import { LinearInterpolator } from '@deck.gl/core';
+import { DirectionalLight } from '@deck.gl/core';
+import { PointLight } from '@deck.gl/core';
 
   const NODE_ENV = import.meta.env.NODE_ENV;
 
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
-    intensity: 2
+    intensity: 0.0
   });
 
-  const lightingEffect = new LightingEffect({ ambientLight })
+  const pointLight = new DirectionalLight({
+    color: [255, 255, 255],
+    intensity: 1.0,
+    direction: [-10, -100, -20]
+  });
+
+  const lightingEffect = new LightingEffect({ ambientLight, pointLight })
 
 
   function hexToArray(hex: string) {
@@ -172,6 +180,13 @@ import { LinearInterpolator } from '@deck.gl/core';
         filled: true,
         opacity: 1,
         getFillColor: hexToArray(colour.globeSea) as RGBAColor,
+        extruded: true,
+        // material: {
+        //   ambient: 0.35,
+        //   diffuse: 0.6,
+        //   shininess: 32,
+        //   specularColor: [255, 255, 255]
+        // }
       }),
       new GeoJsonLayer({
         id: 'earth-land',
@@ -183,6 +198,7 @@ import { LinearInterpolator } from '@deck.gl/core';
         updateTriggers: {
           getFillColor: [colour.globeLand]
         },
+        extruded: true,
         material: {}
       }),
     ];
