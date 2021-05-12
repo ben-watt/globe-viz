@@ -1,4 +1,4 @@
-  import React, { useEffect, useState } from 'react';
+  import React, { useCallback, useEffect, useState } from 'react';
   import { _GlobeView as GlobeView } from '@deck.gl/core'
   import DeckGL from '@deck.gl/react';
   import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
@@ -12,6 +12,7 @@
   import Menu from './Menu';
   import type { ColourState, DevSettings } from './Settings';
   import cities from './cities.json';  
+import { LinearInterpolator } from '@deck.gl/core';
 
   const NODE_ENV = import.meta.env.NODE_ENV;
 
@@ -120,14 +121,25 @@
       return Array<ArcData>();
     }
 
-    // Viewport settings
-    const INITIAL_VIEW_STATE = {
+    const transitionInterpolator = new LinearInterpolator(['longitude']);
+    const [initialViewState, setInitialViewState] = useState({
       longitude: -2.244644,
       latitude: 53.483959,
       zoom: 1,
       pitch: 0,
       bearing: 10,
-    };
+    });
+
+    const rotateCamera = useCallback(() => {
+      console.log("rotate")
+      setInitialViewState(viewState => ({
+        ...viewState,
+        longitude: viewState.longitude + 1.0,
+        transitionDuration: 1000,
+        transitionInterpolator,
+        onTransitionEnd: rotateCamera
+      }))
+    }, []);
 
     const views = [
       new GlobeView({
@@ -159,7 +171,7 @@
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: () => hexToArray(colour.globeSea) as RGBAColor,
+        getFillColor: hexToArray(colour.globeSea) as RGBAColor,
       }),
       new GeoJsonLayer({
         id: 'earth-land',
@@ -167,7 +179,7 @@
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: () => hexToArray(colour.globeLand) as RGBAColor,
+        getFillColor: hexToArray(colour.globeLand) as RGBAColor,
         updateTriggers: {
           getFillColor: [colour.globeLand]
         },
@@ -219,9 +231,10 @@
           getTooltip={({ object }) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
           style={{ backgroundColor: colour.background }}
           views={views}
-          initialViewState={INITIAL_VIEW_STATE}
-          controller={true}
+          initialViewState={initialViewState}
+          controller={false}
           effects={[lightingEffect]}
+          onLoad={rotateCamera}
           layers={layers} />
         <Menu settings={{ colour, devSettings}} setColour={setColour} setDevSettings={setDevSettings} />
       </div>
