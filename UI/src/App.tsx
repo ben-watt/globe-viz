@@ -1,20 +1,19 @@
-  import React, { useCallback, useEffect, useState } from 'react';
-  import { _GlobeView as GlobeView } from '@deck.gl/core'
-  import DeckGL from '@deck.gl/react';
-  import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
-  import { AnimatedArcLayer } from './AnimatedArcLayer';
-  import { AmbientLight, LightingEffect } from 'deck.gl';
-  import hexRgb from 'hex-rgb';
-  import { setLocalStorage } from './hooks';
-  import GL from '@luma.gl/constants';
-  import type { RGBAColor } from 'deck.gl';
-  import axios from 'axios';
-  import Menu from './Menu';
-  import type { ColourState, DevSettings } from './Settings';
-  import cities from './cities.json';  
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { _GlobeView as GlobeView } from '@deck.gl/core'
+import DeckGL from '@deck.gl/react';
+import { ArcLayer, GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
+import { AnimatedArcLayer } from './AnimatedArcLayer';
+import { AmbientLight, LightingEffect } from 'deck.gl';
+import hexRgb from 'hex-rgb';
+import { setLocalStorage } from './hooks';
+import GL from '@luma.gl/constants';
+import type { RGBAColor } from 'deck.gl';
+import axios from 'axios';
+import Menu from './Menu';
+import { DefaultDevSettingsContext, DefaultGlobeColourContext, DevSettingsContext, DevSettingsState, GlobeColourContext, GlobeColourState } from './SettingContext';
+import cities from './cities.json';  
 import { LinearInterpolator } from '@deck.gl/core';
 import { DirectionalLight } from '@deck.gl/core';
-import { PointLight } from '@deck.gl/core';
 
   const NODE_ENV = import.meta.env.NODE_ENV;
 
@@ -41,17 +40,8 @@ import { PointLight } from '@deck.gl/core';
 
   const App = ({ }: AppProps) => {
 
-    const [colour, setColour] = setLocalStorage<ColourState>('colour', {
-      "background": "#000000",
-      "globeLand": "#0d0d0d",
-      "globeSea": "#333333",
-      "archFrom": "#ff00ea",
-      "archTo": "#ffffff"
-    });
-
-    const [devSettings, setDevSettings] = setLocalStorage<DevSettings>('devSettings', {
-      createFakeData: false,
-    });
+    const [devSettings, setDevSettings] = setLocalStorage('devSettings', DefaultDevSettingsContext[0]);
+    const [globeColourSettings, setGlobeColour] = setLocalStorage('colour', DefaultGlobeColourContext[0]);
 
     let [archData, setArchData] = useState<ArcData[][]>([]);
     let [etag, setEtag] = useState<string>("");
@@ -67,7 +57,7 @@ import { PointLight } from '@deck.gl/core';
       
       let interval = setInterval(() => runEffect(), 5000);
       return () => clearInterval(interval);
-    }, [devSettings.createFakeData, setArchData]);
+    }, [devSettings.useDemoData, setArchData]);
 
     async function getArchData() : Promise<ArcData[]> {
       const  { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
@@ -75,14 +65,14 @@ import { PointLight } from '@deck.gl/core';
       let response = await axios.get<Array<ArcData>>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag }})
       setEtag(response.headers.etag);
 
-      console.log(response.data)
+      console.debug(response.data)
 
       if(response.status == 200 && response.data.length > 0) {
           let fetchedArchData = response.data
           let currentIds = archData.flatMap(x => x.map(y => y.id));
           console.debug(currentIds);
           let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-          console.log(newData);
+          console.debug(newData);
           return newData;
       }
       return [];
@@ -113,17 +103,17 @@ import { PointLight } from '@deck.gl/core';
     }
 
     async function requestData() : Promise<ArcData[]> {
-      console.log("requestData:", NODE_ENV, devSettings.createFakeData)
+      console.debug("requestData:", NODE_ENV, devSettings.useDemoData)
       try {
         if(NODE_ENV == "production") {
           return await getArchData();
         } 
-        else if(devSettings.createFakeData === true) {
+        else if(devSettings.useDemoData === true) {
           return await getFakeData(cities);
         }
       }
       catch(ex) {
-        console.log(ex);
+        console.error(ex);
       }
 
       return Array<ArcData>();
@@ -179,7 +169,7 @@ import { PointLight } from '@deck.gl/core';
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: hexToArray(colour.globeSea) as RGBAColor,
+        getFillColor: hexToArray(globeColourSettings.globeSea) as RGBAColor,
         extruded: true,
         material: {
           ambient: 0.2,
@@ -194,9 +184,9 @@ import { PointLight } from '@deck.gl/core';
         stroked: false,
         filled: true,
         opacity: 1,
-        getFillColor: hexToArray(colour.globeLand) as RGBAColor,
+        getFillColor: hexToArray(globeColourSettings.globeLand) as RGBAColor,
         updateTriggers: {
-          getFillColor: [colour.globeLand]
+          getFillColor: [globeColourSettings.globeLand]
         },
         extruded: true,
         elevationScale: 10,
@@ -220,15 +210,15 @@ import { PointLight } from '@deck.gl/core';
         autoHighlight: true,
         getHeight: 0.5,
         greatCircle: true,
-        color: colour.archFrom,
+        color: globeColourSettings.archFrom,
         getRenderDate: (d : ArcData) => Date.now(),
         getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
         getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
-        getSourceColor: hexToArray(colour.archFrom),
-        getTargetColor: hexToArray(colour.archTo),
+        getSourceColor: hexToArray(globeColourSettings.archFrom),
+        getTargetColor: hexToArray(globeColourSettings.archTo),
         updateTriggers: {
-          getSourceColor: [colour.archFrom],
-          getTargetColor: [colour.archTo],
+          getSourceColor: [globeColourSettings.archFrom],
+          getTargetColor: [globeColourSettings.archTo],
         },
         parameters: {
           // prevent flicker from z-fighting
@@ -244,22 +234,25 @@ import { PointLight } from '@deck.gl/core';
     });
 
     let layers = defaultLayers.concat(archLayers);
-    console.log("re-render arch data", archData);
-    console.log("Render layers", layers);
+    console.debug("re-render arch data", archData);
+    console.debug("Render layers", layers);
     return (
-      <div>
-        <DeckGL
-          //@ts-ignore
-          getTooltip={({ object }) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
-          style={{ backgroundColor: colour.background }}
-          views={views}
-          initialViewState={initialViewState}
-          controller={false}
-          effects={[lightingEffect]}
-          onLoad={rotateCamera}
-          layers={layers} />
-        <Menu settings={{ colour, devSettings}} setColour={setColour} setDevSettings={setDevSettings} />
-      </div>
+      <DevSettingsContext.Provider value={[ devSettings, setDevSettings ]}>
+        <GlobeColourContext.Provider value={[ globeColourSettings, setGlobeColour ]}>
+            <DeckGL
+              //@ts-ignore
+              getTooltip={({ object }) => object && { html: `<div>${object.from.name} to ${object.to.name}</div>`}}
+              style={{ backgroundColor: globeColourSettings.background }}
+              views={views}
+              initialViewState={initialViewState}
+              controller={false}
+              effects={[lightingEffect]}
+              onLoad={rotateCamera}
+              layers={layers} />
+            <Menu />
+        </GlobeColourContext.Provider>
+      </DevSettingsContext.Provider>
+      
     )
   }
 

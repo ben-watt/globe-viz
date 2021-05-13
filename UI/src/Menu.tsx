@@ -1,22 +1,16 @@
 
-import React, { useState } from 'react';
-import type { ColourState, DevSettings, Settings } from './Settings';
+import React, { useContext, useState } from 'react';
+import { DevSettingsContext, GlobeColourContext } from './SettingContext';
 import { Toggle } from './Toggle';
-  
-  type MenuProps = {
-    settings: Settings
-    setColour: (curr: ColourState) => ColourState,
-    setDevSettings: (curr : DevSettings) => DevSettings,
-  }
 
-  const Menu = ({ settings, setColour, setDevSettings } : MenuProps) => {
+  const Menu = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
       <div className="absolute">
         { !isOpen 
           ? <MenuIcon isOpen={isOpen} setIsOpen={setIsOpen} /> 
-          : <SettingsMenu settings={settings} setColour={setColour} setIsOpen={setIsOpen} setDevSettings={setDevSettings} />}
+          : <SettingsMenu setIsOpen={setIsOpen} />}
       </div>
     )
   }
@@ -35,19 +29,18 @@ import { Toggle } from './Toggle';
   }
 
   type SettingsMenuProps = {
-    settings:  Settings,
-    setColour: (curr: ColourState) => ColourState,
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    setDevSettings: (curr : DevSettings) => DevSettings,
   }
 
-  const SettingsMenu = ({ settings, setColour, setIsOpen, setDevSettings }: SettingsMenuProps) => {
+  const SettingsMenu = ({ setIsOpen }: SettingsMenuProps) => {
 
-    const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings.colour, null, 2));
-    const colour = settings.colour;
+    const [colour, setGlobeColour] = useContext(GlobeColourContext);
+    const [devSettings, setDevSettings] = useContext(DevSettingsContext);
+
+    const colourJson = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(colour, null, 2));
     function createEventHandler(propName: string) {
       // @ts-ignore
-      return (ev: React.ChangeEvent<HTMLInputElement>) => setColour(curr => ({ ...curr, [propName]: ev.target.value }))
+      return (ev: React.ChangeEvent<HTMLInputElement>) => setGlobeColour(curr => ({ ...curr, [propName]: ev.target.value }))
     }
 
     return (
@@ -96,7 +89,7 @@ import { Toggle } from './Toggle';
             </fieldset>
         </div>
         <div id="devSettings">
-            <Toggle stateChanged={(newVal) => { setDevSettings({ createFakeData: newVal }) }} />
+            <Toggle initialState={devSettings.useDemoData} stateChanged={(newVal) => setDevSettings({ useDemoData: newVal }) } />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">
@@ -109,9 +102,6 @@ import { Toggle } from './Toggle';
       </div>
     )
   }
-
-
-  
 
   const SettingsIcon = () => 
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

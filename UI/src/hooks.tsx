@@ -36,7 +36,7 @@ function setLocalStorage<T>(key: string, initialValue: T): [T, (curr: T) => T] {
     };
   
     //@ts-ignore
-    return [storedValue, setValue];
+    return [storedValue, setValue as React.Dispatch<React.SetStateAction<T>>];
 }
 
 // Will return the global state from storage if available and will thrown if the
