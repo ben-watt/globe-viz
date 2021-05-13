@@ -46,7 +46,7 @@
   `
 
   //@ts-ignore
-  class AnimatedArcLayer extends ArcLayer {
+  export class AnimatedArcLayer extends ArcLayer {
     initializeState(params : any) {
       console.log("AnimatedArcLayer.initializeState", params)
       super.initializeState(params);
@@ -89,5 +89,3 @@
       this.setNeedsRedraw();
     }
   }
-
-  export { AnimatedArcLayer }
