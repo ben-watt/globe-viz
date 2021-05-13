@@ -8,7 +8,7 @@ import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import hexRgb from 'hex-rgb';
 import React, { useCallback, useContext, useState } from 'react'
 import { AnimatedArcLayer } from './AnimatedArcLayer';
-import {  GlobeColourContext } from './SettingContext';
+import { GlobeColourContext } from './SettingContext';
 import GL from '@luma.gl/constants';
 import type { ArcData } from './App';
 import { DeckGL } from '@deck.gl/react';
@@ -36,27 +36,27 @@ type GlobeProps = {
     data: ArcData[][]
 }
 
-export const Globe = ({ data } : GlobeProps) => {
+export const Globe = ({ data }: GlobeProps) => {
 
     const [colour, _] = useContext(GlobeColourContext);
 
     const transitionInterpolator = new LinearInterpolator(['longitude']);
     const [initialViewState, setInitialViewState] = useState({
-      longitude: -2.244644,
-      latitude: 35.483959,
-      zoom: 1.5,
-      pitch: 0,
-      bearing: 0,
+        longitude: -2.244644,
+        latitude: 35.483959,
+        zoom: 1.5,
+        pitch: 0,
+        bearing: 0,
     });
 
     const rotateCamera = useCallback(() => {
-      setInitialViewState(viewState => ({
-        ...viewState,
-        longitude: viewState.longitude + 1.0,
-        transitionDuration: 1000,
-        transitionInterpolator,
-        onTransitionEnd: rotateCamera
-      }))
+        setInitialViewState(viewState => ({
+            ...viewState,
+            longitude: viewState.longitude + 1.0,
+            transitionDuration: 1000,
+            transitionInterpolator,
+            onTransitionEnd: rotateCamera
+        }))
     }, []);
 
     const views = [
@@ -108,38 +108,38 @@ export const Globe = ({ data } : GlobeProps) => {
 
     const archLayers = data.map<AnimatedArcLayer>((chunk, index) => {
         return new AnimatedArcLayer({
-          id: 'arc-layer-' + index,
-          data: chunk,
-          pickable: true,
-          getWidth: 2,
-          widthScale: 1,
-          autoHighlight: true,
-          getHeight: 0.5,
-          greatCircle: true,
-          color: colour.archFrom,
-          getRenderDate: (d : ArcData) => Date.now(),
-          getSourcePosition: (d : ArcData) => [d.from.longitude, d.from.latitude],
-          getTargetPosition: (d : ArcData) => [d.to.longitude, d.to.latitude],
-          getSourceColor: hexToArray(colour.archFrom),
-          getTargetColor: hexToArray(colour.archTo),
-          updateTriggers: {
-            getSourceColor: [colour.archFrom],
-            getTargetColor: [colour.archTo],
-          },
-          parameters: {
-            // prevent flicker from z-fighting
-            [GL.DEPTH_TEST]: true,
-  
-            // turn on additive blending to make them look more glowy
-            [GL.BLEND]: true,
-            [GL.BLEND_SRC_RGB]: GL.ONE,
-            [GL.BLEND_DST_RGB]: GL.ONE,
-            [GL.BLEND_EQUATION]: GL.FUNC_ADD,
-          }
-        });
-      });
+            id: 'arc-layer-' + index,
+            data: chunk,
+            pickable: true,
+            getWidth: 2,
+            widthScale: 1,
+            autoHighlight: true,
+            getHeight: 0.5,
+            greatCircle: true,
+            color: colour.archFrom,
+            getRenderDate: (d: ArcData) => Date.now(),
+            getSourcePosition: (d: ArcData) => [d.from.longitude, d.from.latitude],
+            getTargetPosition: (d: ArcData) => [d.to.longitude, d.to.latitude],
+            getSourceColor: hexToArray(colour.archFrom),
+            getTargetColor: hexToArray(colour.archTo),
+            updateTriggers: {
+                getSourceColor: [colour.archFrom],
+                getTargetColor: [colour.archTo],
+            },
+            parameters: {
+                // prevent flicker from z-fighting
+                [GL.DEPTH_TEST]: true,
 
-      
+                // turn on additive blending to make them look more glowy
+                [GL.BLEND]: true,
+                [GL.BLEND_SRC_RGB]: GL.ONE,
+                [GL.BLEND_DST_RGB]: GL.ONE,
+                [GL.BLEND_EQUATION]: GL.FUNC_ADD,
+            }
+        });
+    });
+
+
     let layers = defaultLayers.concat(archLayers);
     console.debug("re-render arch data", data);
     console.debug("Render layers", layers);
