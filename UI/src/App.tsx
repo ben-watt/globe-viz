@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { setLocalStorage } from './hooks';
-import axios from 'axios';
 import Menu from './Menu';
 import { DefaultDevSettingsContext, DefaultGlobeColourContext, DevSettingsContext, GlobeColourContext, } from './SettingContext';
-import cities from './cities.json';
 import { Globe } from './Globe';
+import { getFakeData, getArchData } from './DataClient';
 
 interface Loc {
   name: string,
@@ -43,56 +42,16 @@ const App = ({ }: AppProps) => {
     return () => clearInterval(interval);
   }, [devSettings.useDemoData, setArchData]);
 
-  async function getArchData(): Promise<ArcData[]> {
-    const { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
-    let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
-    let response = await axios.get<ArcData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
-    setEtag(response.headers.etag);
-
-    console.debug(response.data)
-
-    if (response.status == 200 && response.data.length > 0) {
-      let fetchedArchData = response.data
-      let currentIds = archData.flatMap(x => x.map(y => y.id));
-      console.debug(currentIds);
-      let newData = fetchedArchData.filter(x => !currentIds.includes(x.id));
-      console.debug(newData);
-      return newData;
-    }
-    return [];
-  }
-
-  function getRandomNumber(maxValue: number) {
-    return Math.floor(Math.random() * maxValue);
-  }
-
-  async function getFakeData(cities: Array<any>): Promise<ArcData[]> {
-    let startingCity = cities[getRandomNumber(cities.length)];
-    let endingCity = cities[getRandomNumber(cities.length)];
-
-    return Promise.resolve([{
-      id: Date.now().toString(),
-      date: Date.now().toString(),
-      from: {
-        name: startingCity.name,
-        latitude: Number.parseFloat(startingCity.lat),
-        longitude: Number.parseFloat(startingCity.lng),
-      },
-      to: {
-        name: endingCity.name,
-        latitude: Number.parseFloat(endingCity.lat),
-        longitude: Number.parseFloat(endingCity.lng),
-      }
-    }])
-  }
-
   async function requestData(): Promise<ArcData[]> {
     try {
       if (import.meta.env.NODE_ENV == "production") {
-        return await getArchData();
+        let currentIds = archData.flatMap(x => x.map(y => y.id));
+        let [response, etag] = await getArchData();
+        setEtag(etag);
+        return response.filter(x => !currentIds.includes(x.id));
       }
       else if (devSettings.useDemoData === true) {
-        return await getFakeData(cities);
+        return await getFakeData();
       }
     }
     catch (ex) {

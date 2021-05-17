@@ -21,7 +21,7 @@ const ambientLight = new AmbientLight({
 const pointLight = new DirectionalLight({
     color: [255, 255, 255],
     intensity: 1.0,
-    direction: [-10, -120, -20]
+    direction: [-10, -60, -20]
 });
 
 const lightingEffect = new LightingEffect({ ambientLight, pointLight })
@@ -153,6 +153,7 @@ export const Globe = ({ data }: GlobeProps) => {
             controller={false}
             effects={[lightingEffect]}
             onLoad={rotateCamera}
+            onDragEnd={rotateCamera}
             layers={layers} />
     )
 }
