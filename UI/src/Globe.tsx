@@ -12,6 +12,7 @@ import { GlobeColourContext } from './SettingContext';
 import GL from '@luma.gl/constants';
 import type { ArcData } from './App';
 import { DeckGL } from '@deck.gl/react';
+import { render } from '@testing-library/react';
 
 const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -153,7 +154,6 @@ export const Globe = ({ data }: GlobeProps) => {
             controller={false}
             effects={[lightingEffect]}
             onLoad={rotateCamera}
-            onDragEnd={rotateCamera}
             layers={layers} />
     )
 }
