@@ -7,6 +7,10 @@ using shipments_viz.Controllers;
 using System.IO;
 using shipments_viz.StateStores;
 using shipments_viz.Domain;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using shipments_viz.Messaging;
 
 namespace shipments_viz
 {
@@ -64,6 +68,14 @@ namespace shipments_viz
             {
                 endpoints.MapGet("/api/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
                 endpoints.MapPost("/api/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
+                endpoints.MapPost("/dapr/subscribe", async (HttpContext context) =>
+                {
+                    var subscriptions = new List<Subscription>() {
+                        new Subscription("shipments.pubsub", "shipment-created", "/shipment-created")
+                    };
+
+                    await Task.FromResult(subscriptions);
+                });
             });
 
             app.UseSpaStaticFiles();
