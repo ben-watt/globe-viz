@@ -20,7 +20,7 @@ namespace messaging_sidecar
         public void ProcessMessage(object messageBody, [FromCap] CapHeader header)
         {
             // Read in config and determain where to send the message
-            _client.PostAsJsonAsync("/message-outbound", messageBody, default);
+            _client.PostAsJsonAsync("/message-inbound", messageBody, default);
         }
     }
 }

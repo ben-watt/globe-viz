@@ -21,7 +21,8 @@ namespace messaging_sidecar
             services.AddHttpClient("app", x =>
             {
                 // Create a default client which will point to the relevant application
-                x.BaseAddress = new Uri("http://localhost:8000");
+                var appPort = "5000";
+                x.BaseAddress = new Uri($"http://localhost:{appPort}");
                 x.Timeout = new TimeSpan(0, 1, 10);
             });
 
@@ -40,10 +41,10 @@ namespace messaging_sidecar
             app.UseEndpoints(endpoints =>
             {
                 // Handles messages from the sidecar application to service bus
-                endpoints.MapPost("/message-inbound", async context =>
+                endpoints.MapPost("/v1/message-outbound", async context =>
                 {
                     var capPublisher = services.GetRequiredService<ICapPublisher>();
-                    await capPublisher.PublishAsync("servicebus.inbound.message", context.Request.Body);
+                    await capPublisher.PublishAsync("servicebus.outbound.message", context.Request.Body);
                 });
             });
         }
