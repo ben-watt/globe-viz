@@ -4,4 +4,4 @@ obj
 .snowpack
 build
 node_modules
-/.vs/
+.vs
