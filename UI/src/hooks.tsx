@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
+import type { StateContext } from './SettingContext';
 
 // Sets the state and will set an inial value. Intended to be used like context
-function setLocalStorage<T>(key: string, initialValue: T): [T, (curr: T) => T] {
+function setLocalStorage<T>(key: string, initialValue: T): StateContext<T> {
     // State to store our value
     // Pass initial state function to useState so logic is only executed once
     const [storedValue, setStoredValue] = useState<T>(() => {

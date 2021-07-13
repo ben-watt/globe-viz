@@ -108,6 +108,7 @@ export const Globe = ({ data }: GlobeProps) => {
     ];
 
     const archLayers = data.map<AnimatedArcLayer>((chunk, index) => {
+        //@ts-ignore
         return new AnimatedArcLayer({
             id: 'arc-layer-' + index,
             data: chunk,

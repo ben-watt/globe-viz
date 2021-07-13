@@ -26,10 +26,16 @@ return Promise.resolve([{
 }])
 }
 
-export async function getArchData(): Promise<[ArcData[], string]> {
+export async function getArchData(etag: string): Promise<[ArcData[], string]> {
     const { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
     let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
-    let response = await axios.get<ArcData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
+
+    let response = null;
+    if(etag != "") {
+      response = await axios.get<ArcData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
+    } else {
+      response = await axios.get<ArcData[]>(serverUri + "/api/journeys")
+    }
 
     console.debug(response.data)
 

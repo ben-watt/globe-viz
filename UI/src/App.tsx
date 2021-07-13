@@ -27,7 +27,6 @@ const App = ({ }: AppProps) => {
   const [globeColourSettings, setGlobeColour] = setLocalStorage('colour', DefaultGlobeColourContext[0]);
 
   let [archData, setArchData] = useState<ArcData[][]>([]);
-  let [etag, setEtag] = useState<string>("");
 
   useEffect(() => {
     const runEffect = async () => {
@@ -45,9 +44,10 @@ const App = ({ }: AppProps) => {
   async function requestData(): Promise<ArcData[]> {
     try {
       if (import.meta.env.NODE_ENV == "production") {
+        let [etag, setEtag] = useState<string>("");
         let currentIds = archData.flatMap(x => x.map(y => y.id));
-        let [response, etag] = await getArchData();
-        setEtag(etag);
+        let [response, newETag] = await getArchData(etag);
+        setEtag(newETag);
         return response.filter(x => !currentIds.includes(x.id));
       }
       else if (devSettings.useDemoData === true) {
