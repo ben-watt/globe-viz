@@ -32,9 +32,10 @@ const App = ({ }: AppProps) => {
     const runEffect = async () => {
       let newData = await requestData();
       console.debug("request data, new data", newData);
-      if (newData.length != 0) {
-        setArchData(curr => [...curr, newData])
+      if (newData.length === 0) {
+        setArchData([newData])
       }
+      setArchData(curr => [...curr, newData])
     };
 
     let interval = setInterval(() => runEffect(), 5000);
@@ -50,7 +51,8 @@ const App = ({ }: AppProps) => {
         setEtag(newETag);
         return response.filter(x => !currentIds.includes(x.id));
       }
-      else if (devSettings.useDemoData === true) {
+      else if (devSettings.useDemoData) {
+        console.log("Fake data fetch")
         return await getFakeData();
       }
     }
