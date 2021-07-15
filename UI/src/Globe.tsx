@@ -119,7 +119,8 @@ export const Globe = ({ data }: GlobeProps) => {
             getHeight: 0.5,
             greatCircle: true,
             color: colour.archFrom,
-            getRenderDate: (d: ArcData) => Date.now(),
+            animationSpeed: 1.0,
+            renderDate: new Date(),
             getSourcePosition: (d: ArcData) => [d.from.longitude, d.from.latitude],
             getTargetPosition: (d: ArcData) => [d.to.longitude, d.to.latitude],
             getSourceColor: hexToArray(colour.archFrom),
@@ -154,7 +155,8 @@ export const Globe = ({ data }: GlobeProps) => {
             initialViewState={initialViewState}
             controller={false}
             effects={[lightingEffect]}
-            onLoad={rotateCamera}
+            //TODO: renable this once we've fixed the render issue
+            //onLoad={rotateCamera}
             layers={layers} />
     )
 }

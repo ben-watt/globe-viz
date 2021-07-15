@@ -1,34 +1,35 @@
   import { ArcLayer } from '@deck.gl/layers';
 
-  const vsDeclaration = `
-  attribute float instanceDate;
-  varying float vDate;
-  `
-
-  const vsMain = `
-  vDate = instanceDate;
-  `
 
   const fsDeclaration = `
+  uniform float startTime;
   uniform float currentTime;
-  varying float vDate;
+  uniform float animationSpeed;
+  uniform float animationDuration;
   `
 
   const fsColorFilter = `
-  float tripDuration = 10.0;
-  float dateDiff = currentTime - vDate;
-  float delay = 0.0;
+  float dateDiff = startTime - currentTime;
   float normalisedArch = fract(geometry.uv.x);
+
+  float velocity = dateDiff * animationSpeed;
+
+  //smoothstep(startTime, animationDuration, velocity);
+
+  if(animationDuration < velocity) {
+    discard;
+  }
+
 
   // Head of the trip animation curve
   // delay, end, currentValue
-  float rMax = smoothstep(delay, tripDuration, dateDiff);
+  float rMax = smoothstep(0.0, animationDuration, velocity);
 
-  // Tail of the trip animation curve
-  float rMin = smoothstep(tripDuration, tripDuration + tripDuration, dateDiff);
+  // Tail of the trip animation curve distance between the head and tail
+  float rMin = smoothstep(animationDuration, animationDuration + animationDuration, velocity);
 
   float alpha = 0.0;
-  bool animationHasFinished = dateDiff > tripDuration;
+  bool animationHasFinished = velocity > animationDuration;
   if(!animationHasFinished)
   {
     alpha = normalisedArch > rMax ? 0.0 : 1.0;
@@ -45,32 +46,54 @@
   color.a *= alpha;
   `
 
+  interface AnimatedArcLayerData {}
+
+  interface AnimatedArchLayerProps {
+    renderDate: Date
+  }
+
   //@ts-ignore
-  export class AnimatedArcLayer extends ArcLayer {
-    initializeState(params : any) {
-      console.log("AnimatedArcLayer.initializeState", params)
-      super.initializeState(params);
+  export class AnimatedArcLayer extends ArcLayer<AnimatedArcLayerData, AnimatedArchLayerProps> {
+    /**
+     *
+     */
+    constructor(props :AnimatedArchLayerProps) {
+      super(props);
+
+      console.log(props);
       
-      //@ts-ignore
-      this.getAttributeManager().addInstanced({
-        instanceDate: {
-          size: 1,
-          accessor: 'getRenderDate',
-          transform: this.normaliseTime,
-          defaultValue: this.normaliseTime(Date.now()),
-        },
-      });
     }
 
-    normaliseTime(date: number) {
-      return (date / 1000) - 1620677383
+    initializeState(context : any) {
+      super.initializeState({ context, renderDate: Date.now() });
+
+      console.log("AnimatedArcLayer.initializeState: ", context);
+      console.log("AnimatedArcLayer State", this.state)
+
+      
+      // this.getAttributeManager().addInstanced({
+      //   instanceDate: {
+      //     size: 1,
+      //     accessor: 'getRenderDate',
+      //     transform: (x : any) => this.normal2(Date.now(), 10000),
+      //     defaultValue: this.normal2(Date.now(), 10000),
+      //   },
+      // });
+    }
+
+    // Attemps to return a number between 0 - 1 for
+    // the length of the animiation based on duration
+    normal2(now: number, startDate: Date, durationMiliseconds: number) {
+      let minDate = startDate.getDate();
+      let maxDate = new Date(startDate).setMilliseconds(durationMiliseconds);
+      return (now - minDate) / (maxDate - minDate)
     }
 
     getShaders() {
       const shaders = super.getShaders();
       shaders.inject = {
-        'vs:#decl': vsDeclaration,
-        'vs:#main-end': vsMain,
+        // 'vs:#decl': vsDeclaration,
+        // 'vs:#main-end': vsMain,
         'fs:#decl': fsDeclaration,
         'fs:DECKGL_FILTER_COLOR': fsColorFilter
       };
@@ -80,12 +103,21 @@
     draw(opts : any) {
       super.draw(opts);
 
-      //@ts-ignore
+      let rndDate = new Date(this.props.renderDate);
+      console.log("Rndr Date:" + this.props.renderDate.getUTCSeconds())
+
       this.state.model.setUniforms({
-        currentTime: this.normaliseTime(Date.now()),
+        startTime: 0.0,
+        animationSpeed: 1.0, 
+        animationDuration : 5000,
+        currentTime: this.normal2(Date.now(), rndDate, 5000),
       });
 
-      //@ts-ignore
       this.setNeedsRedraw();
     }
+  }
+
+  AnimatedArcLayer.layerName = "ArcLayer"
+  AnimatedArcLayer.defaultProps = {
+    renderDate: Date
   }
