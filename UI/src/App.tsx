@@ -4,20 +4,13 @@ import Menu from './Menu';
 import { DefaultDevSettingsContext, DefaultGlobeColourContext, DevSettingsContext, GlobeColourContext, } from './SettingContext';
 import { Globe } from './Globe';
 import { getFakeData, getArchData } from './DataClient';
+import type { AnimatedArcLayerData } from './AnimatedArcLayer';
 
 interface Loc {
   name: string,
   latitude: number,
   longitude: number,
 }
-
-export interface ArcData {
-  id: string,
-  date: string,
-  from: Loc,
-  to: Loc
-}
-
 
 type AppProps = {}
 
@@ -26,7 +19,7 @@ const App = ({ }: AppProps) => {
   const [devSettings, setDevSettings] = setLocalStorage('devSettings', DefaultDevSettingsContext[0]);
   const [globeColourSettings, setGlobeColour] = setLocalStorage('colour', DefaultGlobeColourContext[0]);
 
-  let [archData, setArchData] = useState<ArcData[][]>([]);
+  let [archData, setArchData] = useState<AnimatedArcLayerData[][]>([]);
 
   useEffect(() => {
     const runEffect = async () => {
@@ -42,7 +35,7 @@ const App = ({ }: AppProps) => {
     return () => clearInterval(interval);
   }, [devSettings.useDemoData, setArchData]);
 
-  async function requestData(): Promise<ArcData[]> {
+  async function requestData(): Promise<AnimatedArcLayerData[]> {
     try {
       if (import.meta.env.NODE_ENV == "production") {
         let [etag, setEtag] = useState<string>("");
@@ -60,7 +53,7 @@ const App = ({ }: AppProps) => {
       console.error(ex);
     }
 
-    return Array<ArcData>();
+    return Array<AnimatedArcLayerData>();
   }
 
   return (

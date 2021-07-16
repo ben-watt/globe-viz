@@ -1,4 +1,3 @@
-import type { RGBAColor } from '@deck.gl/core';
 import { AmbientLight } from '@deck.gl/core';
 import { DirectionalLight } from '@deck.gl/core';
 import { LinearInterpolator } from '@deck.gl/core';
@@ -6,13 +5,13 @@ import { LightingEffect } from '@deck.gl/core';
 import { _GlobeView as GlobeView } from '@deck.gl/core'
 import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import hexRgb from 'hex-rgb';
-import React, { useCallback, useContext, useState } from 'react'
+import React, { memo, useCallback, useContext, useState } from 'react'
 import { AnimatedArcLayer } from './AnimatedArcLayer';
 import { GlobeColourContext } from './SettingContext';
 import GL from '@luma.gl/constants';
-import type { ArcData } from './App';
+import type { AnimatedArcLayerData } from './AnimatedArcLayer';
 import { DeckGL } from '@deck.gl/react';
-import { render } from '@testing-library/react';
+import type { RGBAColor } from '@deck.gl/core';
 
 const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -28,13 +27,13 @@ const pointLight = new DirectionalLight({
 const lightingEffect = new LightingEffect({ ambientLight, pointLight })
 
 
-function hexToArray(hex: string) {
+function hexToArray(hex: string) : [number, number, number] {
     let rgb = hexRgb(hex)
     return [rgb.red, rgb.green, rgb.blue]
 }
 
 type GlobeProps = {
-    data: ArcData[][]
+    data: AnimatedArcLayerData[][]
 }
 
 export const Globe = ({ data }: GlobeProps) => {
@@ -110,7 +109,7 @@ export const Globe = ({ data }: GlobeProps) => {
     const archLayers = data.map<AnimatedArcLayer>((chunk, index) => {
         //@ts-ignore
         return new AnimatedArcLayer({
-            id: 'arc-layer-' + index,
+            id: `arch-layer-${index}`,
             data: chunk,
             pickable: true,
             getWidth: 2,
@@ -121,14 +120,15 @@ export const Globe = ({ data }: GlobeProps) => {
             color: colour.archFrom,
             animationSpeed: 1.0,
             renderDate: new Date(),
-            getSourcePosition: (d: ArcData) => [d.from.longitude, d.from.latitude],
-            getTargetPosition: (d: ArcData) => [d.to.longitude, d.to.latitude],
+            getSourcePosition: (d: AnimatedArcLayerData) => [d.from.longitude, d.from.latitude],
+            getTargetPosition: (d: AnimatedArcLayerData) => [d.to.longitude, d.to.latitude],
             getSourceColor: hexToArray(colour.archFrom),
             getTargetColor: hexToArray(colour.archTo),
             updateTriggers: {
                 getSourceColor: [colour.archFrom],
                 getTargetColor: [colour.archTo],
             },
+            //@ts-ignore
             parameters: {
                 // prevent flicker from z-fighting
                 [GL.DEPTH_TEST]: true,
@@ -155,8 +155,7 @@ export const Globe = ({ data }: GlobeProps) => {
             initialViewState={initialViewState}
             controller={false}
             effects={[lightingEffect]}
-            //TODO: renable this once we've fixed the render issue
-            //onLoad={rotateCamera}
+            onLoad={rotateCamera}
             layers={layers} />
     )
 }
