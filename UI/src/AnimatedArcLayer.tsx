@@ -3,20 +3,21 @@
 
   const fsDeclaration = `
   uniform float animationPerc;
-  uniform float animationSpeed;
-  uniform float animationDuration;
   `
 
   const fsColorFilter = `
   float normalisedArch = fract(geometry.uv.x);
-  float velocity = animationPerc * animationSpeed;
 
-  float arcHead = smoothstep(0.0, 1.0, velocity);
-  float arcTail = smoothstep(1.0, 2.0, velocity);
-
+  float start = 0.0;
+  float middle = 0.5;
+  float end = 1.0;
   float alpha = 0.0;
-  bool animationHasFinished = velocity >= animationDuration;
-  if(!animationHasFinished)
+
+  float arcHead = smoothstep(start, middle, animationPerc);
+  float arcTail = smoothstep(middle, end, animationPerc);
+
+  bool halfAnimationKeyFrame = animationPerc > middle;
+  if(!halfAnimationKeyFrame)
   {
     alpha = normalisedArch > arcHead ? 0.0 : 1.0;
   }
@@ -63,15 +64,12 @@
     }
 
     draw(opts : any) {
-      let animationDurationMilliseconds = 5000;
-
+      
       let renderDate = new Date(this.props.renderDate);
       let currentTime = Date.now();
-      let animationPerc = this.normalise(currentTime, renderDate, animationDurationMilliseconds);
-
+      let animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
+      
       this.state.model.setUniforms({
-        animationSpeed: 1.0, 
-        animationDuration : 1.0,
         animationPerc: animationPerc,
       });
       
@@ -94,7 +92,8 @@
   }
 
   interface AnimatedArchLayerProps extends ArcLayerProps<AnimatedArcLayerData> {
-    renderDate: Date
+    renderDate: Date,
+    animationDuration: number
   }
 
   AnimatedArcLayer.layerName = "ArcLayer"

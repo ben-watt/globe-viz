@@ -44,7 +44,7 @@ export const Globe = ({ data }: GlobeProps) => {
     const [initialViewState, setInitialViewState] = useState({
         longitude: -2.244644,
         latitude: 35.483959,
-        zoom: 1.5,
+        zoom: 1.0,
         pitch: 0,
         bearing: 0,
     });
@@ -120,6 +120,7 @@ export const Globe = ({ data }: GlobeProps) => {
             color: colour.archFrom,
             animationSpeed: 1.0,
             renderDate: new Date(),
+            animationDuration: 10000,
             getSourcePosition: (d: AnimatedArcLayerData) => [d.from.longitude, d.from.latitude],
             getTargetPosition: (d: AnimatedArcLayerData) => [d.to.longitude, d.to.latitude],
             getSourceColor: hexToArray(colour.archFrom),
