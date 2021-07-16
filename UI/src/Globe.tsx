@@ -7,7 +7,7 @@ import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import hexRgb from 'hex-rgb';
 import React, { memo, useCallback, useContext, useState } from 'react'
 import { AnimatedArcLayer } from './AnimatedArcLayer';
-import { GlobeColourContext } from './SettingContext';
+import { DevSettingsContext, GlobeColourContext } from './SettingContext';
 import GL from '@luma.gl/constants';
 import type { AnimatedArcLayerData } from './AnimatedArcLayer';
 import { DeckGL } from '@deck.gl/react';
@@ -38,7 +38,8 @@ type GlobeProps = {
 
 export const Globe = ({ data }: GlobeProps) => {
 
-    const [colour, _] = useContext(GlobeColourContext);
+    const [colour, setColour] = useContext(GlobeColourContext);
+    const [settings, setSettings] = useContext(DevSettingsContext);
 
     const transitionInterpolator = new LinearInterpolator(['longitude']);
     const [initialViewState, setInitialViewState] = useState({
@@ -121,13 +122,14 @@ export const Globe = ({ data }: GlobeProps) => {
             animationSpeed: 1.0,
             renderDate: new Date(),
             animationDuration: 10000,
+            showAllData: settings.seeAllData,
             getSourcePosition: (d: AnimatedArcLayerData) => [d.from.longitude, d.from.latitude],
             getTargetPosition: (d: AnimatedArcLayerData) => [d.to.longitude, d.to.latitude],
-            getSourceColor: hexToArray(colour.archFrom),
-            getTargetColor: hexToArray(colour.archTo),
+            getSourceColor: () => hexToArray(colour.archFrom),
+            getTargetColor: () => hexToArray(colour.archTo),
             updateTriggers: {
-                getSourceColor: [colour.archFrom],
-                getTargetColor: [colour.archTo],
+                getSourceColor: colour.archFrom,
+                getTargetColor: colour.archTo,
             },
             //@ts-ignore
             parameters: {

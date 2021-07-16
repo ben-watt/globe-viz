@@ -30,10 +30,12 @@ export const GlobeColourContext = React.createContext<StateContext<GlobeColourSt
 
 export type DevSettingsState = {
     useDemoData: boolean,
+    seeAllData: boolean
 }
 
 export const DefaultDevSettingsContext : StateContext<DevSettingsState> = [{
     useDemoData: true,
+    seeAllData: true
 }, stateFuncGenerator<DevSettingsState>() ]
 
 export const DevSettingsContext = React.createContext<StateContext<DevSettingsState>>(DefaultDevSettingsContext)

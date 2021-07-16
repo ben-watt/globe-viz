@@ -68,6 +68,10 @@
       let renderDate = new Date(this.props.renderDate);
       let currentTime = Date.now();
       let animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
+
+      if(this.props.showAllData) {
+        animationPerc = 0.5;
+      }
       
       this.state.model.setUniforms({
         animationPerc: animationPerc,
@@ -93,7 +97,8 @@
 
   interface AnimatedArchLayerProps extends ArcLayerProps<AnimatedArcLayerData> {
     renderDate: Date,
-    animationDuration: number
+    animationDuration: number,
+    showAllData: boolean
   }
 
   AnimatedArcLayer.layerName = "ArcLayer"

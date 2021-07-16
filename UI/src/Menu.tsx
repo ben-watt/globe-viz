@@ -89,7 +89,15 @@ import { Toggle } from './Toggle';
             </fieldset>
         </div>
         <div id="devSettings">
-            <Toggle initialState={devSettings.useDemoData} stateChanged={(newVal) => setDevSettings({ useDemoData: newVal }) } />
+            <Toggle text="Fake Data" 
+                    initialState={devSettings.useDemoData} 
+                    onChanged={ newVal => setDevSettings(curr => ({ ...curr, useDemoData: newVal })) } />
+            <Toggle text="Show All Data"
+                    initialState={devSettings.seeAllData} 
+                    onChanged={ newVal => setDevSettings(curr => ({ ...curr, seeAllData: newVal })) } />
+            <Toggle text="test"
+                    initialState={true} 
+                    onChanged={ newVal => { console.log(newVal)} } />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">
