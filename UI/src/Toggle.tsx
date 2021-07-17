@@ -9,7 +9,7 @@ type ToggleProps = {
 const Toggle = ({ text = "", initialState = false, onChanged }: ToggleProps) => {
     const [enabled, setEnabled] = useState(initialState);
 
-    function toggle(ev: React.FormEvent<HTMLInputElement>) {
+    function toggle(ev : React.MouseEvent<HTMLDivElement, MouseEvent>) {
         ev.preventDefault();
         if (onChanged) {
             onChanged(!enabled);
@@ -19,13 +19,13 @@ const Toggle = ({ text = "", initialState = false, onChanged }: ToggleProps) => 
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col" onClick={toggle}>
             <label htmlFor="toggle" className="mt-3 inline-flex items-center cursor-pointer justify-between">
                 <span>{text}</span>
                 <span className="relative">
                     <div className={`w-10 h-5 rounded-full shadow-inner ${enabled ? "bg-white" : "bg-gray-400"}`}>
                         <div className={`relative w-5 h-5 rounded-full shadow transition-transform duration-300 ease-in-out ${enabled ? "bg-purple-600 transform translate-x-full" : "bg-white"}`}>
-                            <input onChange={toggle} checked id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
+                            <input checked id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
                         </div>
                     </div>
                 </span>

@@ -97,7 +97,7 @@ import { Toggle } from './Toggle';
                     onChanged={ newVal => setDevSettings(curr => ({ ...curr, seeAllData: newVal })) } />
             <Toggle text="test"
                     initialState={true} 
-                    onChanged={ newVal => { console.log(newVal)} } />
+                    onChanged={ newVal => {}} />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">
