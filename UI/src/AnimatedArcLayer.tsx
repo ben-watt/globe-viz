@@ -36,6 +36,7 @@
   //@ts-ignore
   export class AnimatedArcLayer extends ArcLayer<AnimatedArcLayerData, AnimatedArchLayerProps> {
     initializeState(context : any) {
+      this.setState({ renderDate: new Date(this.props.renderDate) })
       super.initializeState({ context });
     }
 
@@ -56,20 +57,17 @@
 
     //@ts-ignore
     shouldUpdateState({ props, oldProps, context, changeFlags }) {
-      if(changeFlags.propsChanged === "props.renderDate changed deeply") {
-        return false;
-      }
-
-      super.shouldUpdateState({ props, oldProps, context, changeFlags });
+      let stateResult = super.shouldUpdateState({ props, oldProps, context, changeFlags });
+      //console.log(this.id, stateResult);
+      return stateResult;
     }
 
     draw(opts : any) {
-      
-      let renderDate = new Date(this.props.renderDate);
+      let renderDate = new Date(this.state.renderDate);
       let currentTime = Date.now();
       let animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
 
-      if(this.props.showAllData) {
+      if(this.props.seeAllData) {
         animationPerc = 0.5;
       }
       
@@ -78,7 +76,7 @@
       });
       
       super.draw(opts);
-      this.setNeedsRedraw();
+      setTimeout(() => this.setNeedsRedraw(), 100);
     }
   }
 
@@ -98,7 +96,7 @@
   interface AnimatedArchLayerProps extends ArcLayerProps<AnimatedArcLayerData> {
     renderDate: Date,
     animationDuration: number,
-    showAllData: boolean
+    seeAllData: boolean
   }
 
   AnimatedArcLayer.layerName = "ArcLayer"

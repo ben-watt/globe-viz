@@ -95,9 +95,6 @@ import { Toggle } from './Toggle';
             <Toggle text="Show All Data"
                     initialState={devSettings.seeAllData} 
                     onChanged={ newVal => setDevSettings(curr => ({ ...curr, seeAllData: newVal })) } />
-            <Toggle text="test"
-                    initialState={true} 
-                    onChanged={ newVal => {}} />
         </div>
         <div id="download">
             <div className="pt-5 flex justify-between">

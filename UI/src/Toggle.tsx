@@ -25,7 +25,7 @@ const Toggle = ({ text = "", initialState = false, onChanged }: ToggleProps) => 
                 <span className="relative">
                     <div className={`w-10 h-5 rounded-full shadow-inner ${enabled ? "bg-white" : "bg-gray-400"}`}>
                         <div className={`relative w-5 h-5 rounded-full shadow transition-transform duration-300 ease-in-out ${enabled ? "bg-purple-600 transform translate-x-full" : "bg-white"}`}>
-                            <input checked id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
+                            <input checked={enabled} id="toggle" type="checkbox" className="absolute opacity-0 w-0 h-0" />
                         </div>
                     </div>
                 </span>

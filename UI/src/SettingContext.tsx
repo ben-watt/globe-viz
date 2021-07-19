@@ -35,7 +35,7 @@ export type DevSettingsState = {
 
 export const DefaultDevSettingsContext : StateContext<DevSettingsState> = [{
     useDemoData: true,
-    seeAllData: true
+    seeAllData: false
 }, stateFuncGenerator<DevSettingsState>() ]
 
 export const DevSettingsContext = React.createContext<StateContext<DevSettingsState>>(DefaultDevSettingsContext)
