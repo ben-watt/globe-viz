@@ -57,9 +57,11 @@
 
     //@ts-ignore
     shouldUpdateState({ props, oldProps, context, changeFlags }) {
-      let stateResult = super.shouldUpdateState({ props, oldProps, context, changeFlags });
-      //console.log(this.id, stateResult);
-      return stateResult;
+      if(oldProps.seeAllData !== props.seeAllData) {
+        console.log(oldProps, props);
+        return true;
+      }
+      return super.shouldUpdateState({ props, oldProps, context, changeFlags });
     }
 
     draw(opts : any) {
@@ -67,6 +69,7 @@
       let currentTime = Date.now();
       let animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
 
+      console.log(this.props.seeAllData)
       if(this.props.seeAllData) {
         animationPerc = 0.5;
       }

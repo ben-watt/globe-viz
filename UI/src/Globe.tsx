@@ -122,7 +122,7 @@ export const Globe = ({ data }: GlobeProps) => {
             animationSpeed: 1.0,
             renderDate: new Date(),
             animationDuration: 10000,
-            getSeeAllData: settings.seeAllData,
+            seeAllData: settings.seeAllData,
             getSourcePosition: (d: AnimatedArcLayerData) => [d.from.longitude, d.from.latitude],
             getTargetPosition: (d: AnimatedArcLayerData) => [d.to.longitude, d.to.latitude],
             getSourceColor: hexToArray(colour.archFrom),
@@ -130,7 +130,6 @@ export const Globe = ({ data }: GlobeProps) => {
             updateTriggers: {
                 getSourceColor: colour.archFrom,
                 getTargetColor: colour.archTo,
-                getSeeAllData: settings.seeAllData
             },
             //@ts-ignore
             parameters: {
