@@ -1,41 +1,29 @@
-  import { ArcLayer } from '@deck.gl/layers';
+  import { ArcLayer, ArcLayerProps } from '@deck.gl/layers';
 
-  const vsDeclaration = `
-  attribute float instanceDate;
-  varying float vDate;
-  `
-
-  const vsMain = `
-  vDate = instanceDate;
-  `
 
   const fsDeclaration = `
-  uniform float currentTime;
-  varying float vDate;
+  uniform float animationPerc;
   `
 
   const fsColorFilter = `
-  float tripDuration = 10.0;
-  float dateDiff = currentTime - vDate;
-  float delay = 0.0;
   float normalisedArch = fract(geometry.uv.x);
 
-  // Head of the trip animation curve
-  // delay, end, currentValue
-  float rMax = smoothstep(delay, tripDuration, dateDiff);
-
-  // Tail of the trip animation curve
-  float rMin = smoothstep(tripDuration, tripDuration + tripDuration, dateDiff);
-
+  float start = 0.0;
+  float middle = 0.5;
+  float end = 1.0;
   float alpha = 0.0;
-  bool animationHasFinished = dateDiff > tripDuration;
-  if(!animationHasFinished)
+
+  float arcHead = smoothstep(start, middle, animationPerc);
+  float arcTail = smoothstep(middle, end, animationPerc);
+
+  bool halfAnimationKeyFrame = animationPerc > middle;
+  if(!halfAnimationKeyFrame)
   {
-    alpha = normalisedArch > rMax ? 0.0 : 1.0;
+    alpha = normalisedArch > arcHead ? 0.0 : 1.0;
   }
   else
   {
-    alpha = normalisedArch > rMin ? 1.0 : 0.0;
+    alpha = normalisedArch > arcTail ? 1.0 : 0.0;
   }
 
   if (alpha == 0.0) {
@@ -46,46 +34,77 @@
   `
 
   //@ts-ignore
-  export class AnimatedArcLayer extends ArcLayer {
-    initializeState(params : any) {
-      console.log("AnimatedArcLayer.initializeState", params)
-      super.initializeState(params);
-      
-      //@ts-ignore
-      this.getAttributeManager().addInstanced({
-        instanceDate: {
-          size: 1,
-          accessor: 'getRenderDate',
-          transform: this.normaliseTime,
-          defaultValue: this.normaliseTime(Date.now()),
-        },
-      });
-    }
-
-    normaliseTime(date: number) {
-      return (date / 1000) - 1620677383
+  export class AnimatedArcLayer extends ArcLayer<AnimatedArcLayerData, AnimatedArchLayerProps> {
+    initializeState(context : any) {
+      this.setState({ renderDate: new Date(this.props.renderDate) })
+      super.initializeState({ context });
     }
 
     getShaders() {
       const shaders = super.getShaders();
       shaders.inject = {
-        'vs:#decl': vsDeclaration,
-        'vs:#main-end': vsMain,
         'fs:#decl': fsDeclaration,
         'fs:DECKGL_FILTER_COLOR': fsColorFilter
       };
       return shaders;
     }
 
-    draw(opts : any) {
-      super.draw(opts);
-
-      //@ts-ignore
-      this.state.model.setUniforms({
-        currentTime: this.normaliseTime(Date.now()),
-      });
-
-      //@ts-ignore
-      this.setNeedsRedraw();
+    normalise(now: number, startDate: Date, durationMiliseconds: number) {
+      let minDate = startDate.getTime();
+      let maxDate = new Date(startDate).setMilliseconds(durationMiliseconds);
+      return ((now - minDate) / (maxDate - minDate))
     }
+
+    //@ts-ignore
+    shouldUpdateState({ props, oldProps, context, changeFlags }) {
+      if(oldProps.seeAllData !== props.seeAllData) {
+        console.log(oldProps, props);
+        return true;
+      }
+      return super.shouldUpdateState({ props, oldProps, context, changeFlags });
+    }
+
+    draw(opts : any) {
+      
+      let animationPerc = 0.0;
+
+      if(this.props.seeAllData) {
+        animationPerc = 0.5;
+      } else {
+        let renderDate = new Date(this.state.renderDate);
+        let currentTime = Date.now();
+        animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
+      }
+      
+      this.state.model.setUniforms({
+        animationPerc: animationPerc,
+      });
+      
+      super.draw(opts);
+      setTimeout(() => this.setNeedsRedraw(), 100);
+    }
+  }
+
+  interface Loc {
+    name: string,
+    latitude: number,
+    longitude: number,
+  }
+
+  export interface AnimatedArcLayerData {
+    id: string,
+    date: string,
+    from: Loc,
+    to: Loc
+  }
+
+  interface AnimatedArchLayerProps extends ArcLayerProps<AnimatedArcLayerData> {
+    renderDate: Date,
+    animationDuration: number,
+    seeAllData: boolean
+  }
+
+  AnimatedArcLayer.layerName = "ArcLayer"
+  AnimatedArcLayer.defaultProps = {
+    renderDate: Date
   }

@@ -1,4 +1,3 @@
-import type { RGBAColor } from '@deck.gl/core';
 import { AmbientLight } from '@deck.gl/core';
 import { DirectionalLight } from '@deck.gl/core';
 import { LinearInterpolator } from '@deck.gl/core';
@@ -6,13 +5,13 @@ import { LightingEffect } from '@deck.gl/core';
 import { _GlobeView as GlobeView } from '@deck.gl/core'
 import { GeoJsonLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import hexRgb from 'hex-rgb';
-import React, { useCallback, useContext, useState } from 'react'
+import React, { memo, useCallback, useContext, useState } from 'react'
 import { AnimatedArcLayer } from './AnimatedArcLayer';
-import { GlobeColourContext } from './SettingContext';
+import { DevSettingsContext, GlobeColourContext } from './SettingContext';
 import GL from '@luma.gl/constants';
-import type { ArcData } from './App';
+import type { AnimatedArcLayerData } from './AnimatedArcLayer';
 import { DeckGL } from '@deck.gl/react';
-import { render } from '@testing-library/react';
+import type { RGBAColor } from '@deck.gl/core';
 
 const ambientLight = new AmbientLight({
     color: [255, 255, 255],
@@ -21,31 +20,32 @@ const ambientLight = new AmbientLight({
 
 const pointLight = new DirectionalLight({
     color: [255, 255, 255],
-    intensity: 1.0,
-    direction: [-10, -60, -20]
+    intensity: 0.8,
+    direction: [-20, -120, -100]
 });
 
 const lightingEffect = new LightingEffect({ ambientLight, pointLight })
 
 
-function hexToArray(hex: string) {
+function hexToArray(hex: string) : [number, number, number] {
     let rgb = hexRgb(hex)
     return [rgb.red, rgb.green, rgb.blue]
 }
 
 type GlobeProps = {
-    data: ArcData[][]
+    data: AnimatedArcLayerData[][]
 }
 
 export const Globe = ({ data }: GlobeProps) => {
 
-    const [colour, _] = useContext(GlobeColourContext);
+    const [colour, setColour] = useContext(GlobeColourContext);
+    const [settings, setSettings] = useContext(DevSettingsContext);
 
     const transitionInterpolator = new LinearInterpolator(['longitude']);
     const [initialViewState, setInitialViewState] = useState({
         longitude: -2.244644,
         latitude: 35.483959,
-        zoom: 1.5,
+        zoom: 1.0,
         pitch: 0,
         bearing: 0,
     });
@@ -71,7 +71,7 @@ export const Globe = ({ data }: GlobeProps) => {
         new SolidPolygonLayer({
             id: 'background',
             data: [
-                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
+                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90], [-200, -10]]
             ],
             getPolygon: d => d as any,
             stroked: false,
@@ -80,9 +80,9 @@ export const Globe = ({ data }: GlobeProps) => {
             getFillColor: hexToArray(colour.globeSea) as RGBAColor,
             extruded: true,
             material: {
-                ambient: 0.2,
-                diffuse: 0.6,
-                shininess: 229,
+                ambient: 0.1,
+                diffuse: 0.4,
+                shininess: 200,
                 specularColor: [255, 255, 255]
             }
         }),
@@ -99,9 +99,9 @@ export const Globe = ({ data }: GlobeProps) => {
             extruded: true,
             elevationScale: 10,
             material: {
-                ambient: 0.3,
-                diffuse: 0.9,
-                shininess: 50,
+                ambient: 0.2,
+                diffuse: 0.4,
+                shininess: 100,
                 specularColor: [255, 255, 255]
             }
         }),
@@ -110,7 +110,7 @@ export const Globe = ({ data }: GlobeProps) => {
     const archLayers = data.map<AnimatedArcLayer>((chunk, index) => {
         //@ts-ignore
         return new AnimatedArcLayer({
-            id: 'arc-layer-' + index,
+            id: `arch-layer-${index}`,
             data: chunk,
             pickable: true,
             getWidth: 2,
@@ -119,15 +119,19 @@ export const Globe = ({ data }: GlobeProps) => {
             getHeight: 0.5,
             greatCircle: true,
             color: colour.archFrom,
-            getRenderDate: (d: ArcData) => Date.now(),
-            getSourcePosition: (d: ArcData) => [d.from.longitude, d.from.latitude],
-            getTargetPosition: (d: ArcData) => [d.to.longitude, d.to.latitude],
+            animationSpeed: 1.0,
+            renderDate: new Date(),
+            animationDuration: 10000,
+            seeAllData: settings.seeAllData,
+            getSourcePosition: (d: AnimatedArcLayerData) => [d.from.longitude, d.from.latitude],
+            getTargetPosition: (d: AnimatedArcLayerData) => [d.to.longitude, d.to.latitude],
             getSourceColor: hexToArray(colour.archFrom),
             getTargetColor: hexToArray(colour.archTo),
             updateTriggers: {
-                getSourceColor: [colour.archFrom],
-                getTargetColor: [colour.archTo],
+                getSourceColor: colour.archFrom,
+                getTargetColor: colour.archTo,
             },
+            //@ts-ignore
             parameters: {
                 // prevent flicker from z-fighting
                 [GL.DEPTH_TEST]: true,
