@@ -20,8 +20,8 @@ const ambientLight = new AmbientLight({
 
 const pointLight = new DirectionalLight({
     color: [255, 255, 255],
-    intensity: 1.0,
-    direction: [-10, -60, -20]
+    intensity: 0.8,
+    direction: [-20, -120, -100]
 });
 
 const lightingEffect = new LightingEffect({ ambientLight, pointLight })
@@ -71,7 +71,7 @@ export const Globe = ({ data }: GlobeProps) => {
         new SolidPolygonLayer({
             id: 'background',
             data: [
-                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
+                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90], [-200, -10]]
             ],
             getPolygon: d => d as any,
             stroked: false,
@@ -80,9 +80,9 @@ export const Globe = ({ data }: GlobeProps) => {
             getFillColor: hexToArray(colour.globeSea) as RGBAColor,
             extruded: true,
             material: {
-                ambient: 0.2,
-                diffuse: 0.6,
-                shininess: 229,
+                ambient: 0.1,
+                diffuse: 0.4,
+                shininess: 200,
                 specularColor: [255, 255, 255]
             }
         }),
@@ -99,9 +99,9 @@ export const Globe = ({ data }: GlobeProps) => {
             extruded: true,
             elevationScale: 10,
             material: {
-                ambient: 0.3,
-                diffuse: 0.9,
-                shininess: 50,
+                ambient: 0.2,
+                diffuse: 0.4,
+                shininess: 100,
                 specularColor: [255, 255, 255]
             }
         }),

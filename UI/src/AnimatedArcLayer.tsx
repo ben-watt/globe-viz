@@ -65,13 +65,15 @@
     }
 
     draw(opts : any) {
-      let renderDate = new Date(this.state.renderDate);
-      let currentTime = Date.now();
-      let animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
+      
+      let animationPerc = 0.0;
 
-      console.log(this.props.seeAllData)
       if(this.props.seeAllData) {
         animationPerc = 0.5;
+      } else {
+        let renderDate = new Date(this.state.renderDate);
+        let currentTime = Date.now();
+        animationPerc = this.normalise(currentTime, renderDate, this.props.animationDuration);
       }
       
       this.state.model.setUniforms({
