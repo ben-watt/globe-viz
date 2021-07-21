@@ -1,11 +1,21 @@
 using System;
 using System.Linq;
+using System.Text.Json.Serialization;
 using shipments_viz.StateStores;
 
 namespace shipments_viz.Domain
 {
     public record Journy : IEntity
     {
+        [JsonConstructor]
+        public Journy(Guid id, DateTime date, Location from, Location to)
+        {
+            Id = id;
+            Date = date;
+            From = from;
+            To = to;
+        }
+
         public Journy(Shipment shipment)
         {
             Id = Guid.NewGuid();

@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using shipments_viz.Domain;
@@ -54,7 +55,14 @@ namespace shipments_viz.Controllers
         {
             try
             {
-                var request = await context.Request.ReadFromJsonAsync<Shipment>();
+
+                var options = new JsonSerializerOptions() {
+                    PropertyNamingPolicy = new SnakeCaseNamingPolicy()
+                };
+
+                var request = await context.Request.ReadFromJsonAsync<Shipment>(options);
+
+                Console.WriteLine(JsonSerializer.Serialize(request, options));
                 if(request != null)
                 {
                     var journey = new Journy(request);

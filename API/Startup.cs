@@ -68,14 +68,7 @@ namespace shipments_viz
             {
                 endpoints.MapGet("/api/journeys", app.ApplicationServices.GetRequiredService<JourneyController>().GetJourneys);
                 endpoints.MapPost("/api/journy", app.ApplicationServices.GetRequiredService<JourneyController>().SaveJourny);
-                endpoints.MapPost("/dapr/subscribe", async (HttpContext context) =>
-                {
-                    var subscriptions = new List<Subscription>() {
-                        new Subscription("shipments.pubsub", "shipment-created", "/shipment-created")
-                    };
-
-                    await Task.FromResult(subscriptions);
-                });
+                endpoints.MapPost("/api/shipment", app.ApplicationServices.GetRequiredService<JourneyController>().SaveShipment);
             });
 
             app.UseSpaStaticFiles();
