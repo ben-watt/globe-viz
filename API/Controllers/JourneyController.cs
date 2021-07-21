@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using shipments_viz.Domain;
@@ -44,7 +43,24 @@ namespace shipments_viz.Controllers
                     var newJourny = request with { Id = Guid.NewGuid() };
                     await _save.Save(newJourny);
                     context.Response.StatusCode = StatusCodes.Status201Created;
-                    Console.WriteLine("Saved Journy: {0}", JsonSerializer.Serialize(newJourny));
+                    Console.WriteLine("Saved Journy: {0}", newJourny.Id);
+                }
+            } catch(Exception ex) {
+                throw new BadHttpRequestException("Unable to parse request", ex);
+            }
+        }
+
+        public async Task SaveShipment(HttpContext context)
+        {
+            try
+            {
+                var request = await context.Request.ReadFromJsonAsync<Shipment>();
+                if(request != null)
+                {
+                    var journey = new Journy(request);
+                    await _save.Save(journey);
+                    context.Response.StatusCode = StatusCodes.Status201Created;
+                    Console.WriteLine("Saved Journy: {0}", journey.Id);
                 }
             } catch(Exception ex) {
                 throw new BadHttpRequestException("Unable to parse request", ex);
