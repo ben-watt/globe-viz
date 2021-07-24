@@ -58,9 +58,9 @@
     //@ts-ignore
     shouldUpdateState({ props, oldProps, context, changeFlags }) {
       if(oldProps.seeAllData !== props.seeAllData) {
-        console.log(oldProps, props);
         return true;
       }
+
       return super.shouldUpdateState({ props, oldProps, context, changeFlags });
     }
 

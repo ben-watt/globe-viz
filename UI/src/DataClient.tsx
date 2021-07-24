@@ -31,17 +31,25 @@ export async function getArchData(etag: string): Promise<[AnimatedArcLayerData[]
     let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
 
     let response = null;
-    if(etag != "") {
-      response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
-    } else {
-      response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys")
+
+    try {
+      if(etag != "") {
+        console.debug("Get data with etag");
+        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
+      } else {
+        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys")
+      }
+      
+      if (response.status == 200 && response.data.length > 0) {
+        return [response.data, response.headers.etag];
+      }
+
+    } catch (err) {
+      if(response?.status == 304)
+        console.debug("Not modified")
+      else
+        throw new Error(err);
     }
 
-    console.debug(response.data)
-
-    if (response.status == 200 && response.data.length > 0) {
-      return [response.data, response.headers.etag];
-    } else {
-      return [[], ""];
-    }
+    return [[], etag];
   }

@@ -71,7 +71,7 @@ export const Globe = ({ data }: GlobeProps) => {
         new SolidPolygonLayer({
             id: 'background',
             data: [
-                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90], [-200, -10]]
+                [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
             ],
             getPolygon: d => d as any,
             stroked: false,
@@ -145,10 +145,7 @@ export const Globe = ({ data }: GlobeProps) => {
         });
     });
 
-
     let layers = defaultLayers.concat(archLayers);
-    console.debug("re-render arch data", data);
-    console.debug("Render layers", layers);
     return (
         <DeckGL
             //@ts-ignore
