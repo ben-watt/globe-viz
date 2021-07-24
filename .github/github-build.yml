@@ -29,11 +29,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Output
-        run: ls ./ | echo
-
       - name: Build
-        run: docker buildx build ./ -t globe-viz:latest globe-viz:${{ env.GITVERSION_SEMVER }}
+        run: docker build . -t globe-viz:latest globe-viz:${{ env.GITVERSION_SEMVER }}
 
       - name: Publish
         run: docker push ghcr.io/wattcode/globe-viz:latest
