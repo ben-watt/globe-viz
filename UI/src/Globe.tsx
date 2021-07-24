@@ -145,10 +145,8 @@ export const Globe = ({ data }: GlobeProps) => {
         });
     });
 
-
     let layers = defaultLayers.concat(archLayers);
-    console.debug("re-render arch data", data);
-    console.debug("Render layers", layers);
+    console.log("render layers", layers)
     return (
         <DeckGL
             //@ts-ignore

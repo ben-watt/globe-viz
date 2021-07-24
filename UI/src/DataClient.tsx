@@ -30,18 +30,22 @@ export async function getArchData(etag: string): Promise<[AnimatedArcLayerData[]
     const { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
     let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
 
-    let response = null;
-    if(etag != "") {
-      response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
-    } else {
-      response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys")
+    try {
+      let response = null;
+      if(etag != "") {
+        console.debug("Get data with etag");
+        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
+      } else {
+        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys")
+      }
+      
+      if (response.status == 200 && response.data.length > 0) {
+        return [response.data, response.headers.etag];
+      }
+
+    } catch {
+      console.log("data catch")
     }
 
-    console.debug(response.data)
-
-    if (response.status == 200 && response.data.length > 0) {
-      return [response.data, response.headers.etag];
-    } else {
-      return [[], ""];
-    }
+    return [[], etag];
   }
