@@ -146,7 +146,6 @@ export const Globe = ({ data }: GlobeProps) => {
     });
 
     let layers = defaultLayers.concat(archLayers);
-    console.log("render layers", layers)
     return (
         <DeckGL
             //@ts-ignore

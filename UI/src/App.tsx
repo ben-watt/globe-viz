@@ -24,10 +24,7 @@ const App = ({ }: AppProps) => {
 
   useEffect(() => {
     const runEffect = async () => {
-      console.log("runEffect")
       let [newData, newETag] = await requestData();
-
-      console.log(newData);
       
       if(etag !== newETag) {
         setEtag(newETag);

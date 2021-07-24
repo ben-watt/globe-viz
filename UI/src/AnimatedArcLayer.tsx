@@ -69,7 +69,6 @@
       let animationPerc = 0.0;
 
       if(this.props.seeAllData) {
-        console.log("see all data ")
         animationPerc = 0.5;
       } else {
         let renderDate = new Date(this.state.renderDate);
