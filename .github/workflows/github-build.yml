@@ -38,11 +38,21 @@ jobs:
       - name: Build
         run: docker build . -t ghcr.io/wattcode/globe-viz:latest -t ghcr.io/wattcode/globe-viz:${{ env.GITVERSION_SEMVER }}
 
+      - name: Upload image
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "ghcr.io/wattcode/globe-viz:${{ env.GITVERSION_SEMVER }}"
+
   create_package:
     needs: build_image
-    if: ${{ github.ref == 'refs/heads/main'  }}
+    #if: ${{ github.ref == 'refs/heads/main'  }}
     runs-on: ubuntu-latest
     steps:
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "ghcr.io/wattcode/globe-viz:${{ env.GITVERSION_SEMVER }}"
+
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
 
