@@ -61,10 +61,10 @@ jobs:
           image: "ghcr.io/wattcode/globe-viz:${{ needs.build_image.outputs.version }}"
       
       - name: Unzip image
-        run: unzip -d ${{ steps.archive.outputs.download_path }}
+        run: unzip -p ${{ steps.archive.outputs.download_path }} > /tmp/final_image
 
       - name: Load image
-        run: docker load <(ls ./image)
+        run: docker load < /tmp/final_image
 
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
