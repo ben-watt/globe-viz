@@ -64,7 +64,7 @@ jobs:
         run: echo "::set-output name=image::${{ env.GITVERSION_SEMVER }}"
       
       - name: List output
-        run: echo "ls ${{ steps.archive.outputs.download_path }}"
+        run: ls ${{ steps.archive.outputs.download_path }}
 
       - name: Load image
         run: docker load ${{ steps.archive.outputs.download_path }}
