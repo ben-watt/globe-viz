@@ -7,36 +7,17 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJSON(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJSON(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJSON(runner) }}
-        run: echo "$RUNNER_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJSON(strategy) }}
-        run: echo "$STRATEGY_CONTEXT"
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJSON(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image:  "ghcr.io/wattcode/globe-viz:${{ steps.get_version.outputs.VERSION }}"
 
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
 
       - name: Publish
         run: docker push -a ghcr.io/wattcode/globe-viz
-          
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
