@@ -27,17 +27,14 @@ return Promise.resolve([{
 }
 
 export async function getArchData(etag: string): Promise<[AnimatedArcLayerData[], string]> {
-    const { SNOWPACK_PUBLIC_API_SERVER, SNOWPACK_PUBLIC_API_PORT } = import.meta.env;
-    let serverUri = SNOWPACK_PUBLIC_API_SERVER + ":" + SNOWPACK_PUBLIC_API_PORT;
-
     let response = null;
 
     try {
       if(etag != "") {
         console.debug("Get data with etag");
-        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys", { headers: { "If-None-Match": etag } })
+        response = await axios.get<AnimatedArcLayerData[]>("/api/journeys", { headers: { "If-None-Match": etag } })
       } else {
-        response = await axios.get<AnimatedArcLayerData[]>(serverUri + "/api/journeys")
+        response = await axios.get<AnimatedArcLayerData[]>("/api/journeys")
       }
       
       if (response.status == 200 && response.data.length > 0) {
