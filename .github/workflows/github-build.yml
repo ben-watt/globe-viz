@@ -61,5 +61,8 @@ jobs:
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
 
+      - name: Tag as latest
+        run: docker tag ghcr.io/wattcode/globe-viz ghcr.io/wattcode/globe-viz:latest
+
       - name: Publish
         run: docker push -a ghcr.io/wattcode/globe-viz
