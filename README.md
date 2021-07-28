@@ -1,38 +1,38 @@
-# Shipment Viz
+[![ci](https://github.com/wattcode/shipments-viz/actions/workflows/github-build.yml/badge.svg?branch=main)](https://github.com/wattcode/shipments-viz/actions/workflows/github-build.yml)
 
-This app shows shipments created and visualises the origin to destination.
+# Globe Viz
 
-## Run the app
+Visualise trips across the globe with this simple service.
 
-### dotnet run
+[![Demo](https://img.youtube.com/vi/Fvsm9rlYzeI/0.jpg)](https://youtu.be/Fvsm9rlYzeI)
 
-`dotnet run`
+## Quick Start
 
-Starts the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+```sh
+docker pull ghcr.io/wattcode/globe-viz:latest
+docker run globe-viz -p 80:8080
+```
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+## API
 
-## To do
+```json
+POST /api/journeys
+{
+    "date" : "2011-10-20T13:00:00",
+    "from" : {
+        "name" : "Origin",
+        "latitude" : 34.9,
+        "longitude" : 150.9
+    },
+    "to" : {
+        "name" : "Destination",
+        "latitude" : 10.0,
+        "longitude" : 44.5
+    }
+}
+```
 
-A list of items we need to do to get this app finished
-
-### Basics
-
-- [x] Show and hide the settings menu
-- [x] Export settings `.json`
-- [ ] Import settings `.json`
-- [ ] Endpoint to send data and persist it (general metadata)
-- [ ] Endpoint to get all data, with parameters for a given date range
-- [ ] Seperate service for listening to shipment created messages
-- [ ] Deploy service to kubernetes
-
-### Extras
-
-- [ ] Grpc for sending data to the service?
-- [ ] Hue around earth, similar to github globe
-- [ ] Integrate with mapbox
-- [ ] Search trips and metadata (Ctrl + K)?
-- [ ] Slowely rotate globe?
-- [ ] Perisit trips and timeline to explore (see google photos)
+```json
+GET /api/journeys
+If-None-Match:<etag>
+```
