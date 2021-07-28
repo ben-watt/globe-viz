@@ -31,3 +31,12 @@ jobs:
         env:
           MATRIX_CONTEXT: ${{ toJSON(matrix) }}
         run: echo "$MATRIX_CONTEXT"
+
+      - name: Login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
+
+      - name: Publish
+        run: docker push -a ghcr.io/wattcode/globe-viz
+          
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
