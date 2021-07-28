@@ -4,7 +4,7 @@
 
 Visualise trips across the globe with this simple service.
 
-![demo](./docs/assets/rename_2021-07-28 12-27-52.mp4)
+https://youtu.be/Fvsm9rlYzeI
 
 ## Quick Start
 
@@ -12,6 +12,8 @@ Visualise trips across the globe with this simple service.
 docker pull ghcr.io/wattcode/globe-viz:latest
 docker run globe-viz -p 80:8080
 ```
+
+## API
 
 ```json
 POST /api/journeys
