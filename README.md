@@ -4,7 +4,7 @@
 
 Visualise trips across the globe with this simple service.
 
-[demo](./docs/assets/rename_2021-07-28 12-27-52.mp4)
+![demo](./docs/assets/rename_2021-07-28 12-27-52.mp4)
 
 ## Quick Start
 
