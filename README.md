@@ -4,7 +4,7 @@
 
 Visualise trips across the globe with this simple service.
 
-https://youtu.be/Fvsm9rlYzeI
+[![Demo](https://img.youtube.com/vi/Fvsm9rlYzeI/0.jpg)](https://youtu.be/Fvsm9rlYzeI)
 
 ## Quick Start
 
