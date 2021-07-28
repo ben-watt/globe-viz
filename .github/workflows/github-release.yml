@@ -1,0 +1,23 @@
+name: release
+
+on:
+  release:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image:  "ghcr.io/wattcode/globe-viz:${{ steps.get_version.outputs.VERSION }}"
+
+      - name: Login
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
+
+      - name: Publish
+        run: docker push -a ghcr.io/wattcode/globe-viz
