@@ -35,7 +35,6 @@ const App = ({ }: AppProps) => {
       }
     };
 
-    console.log("setInterval")
     let intervalId : NodeJS.Timeout;
     intervalId = setInterval(() => runEffect(), 5000);
 
