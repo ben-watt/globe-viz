@@ -66,11 +66,8 @@ jobs:
       - name: Load image
         run: docker load -i ${{ steps.archive.outputs.download_path }}
 
-      - name: docker list
-        run: docker image ls 
-
       - name: Tag as latest
-        run: docker tag ghcr.io/wattcode/globe-viz ghcr.io/wattcode/globe-viz:latest
+        run: docker tag ghcr.io/wattcode/globe-viz:${{ needs.build_image.outputs.version }} ghcr.io/wattcode/globe-viz:latest
 
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
