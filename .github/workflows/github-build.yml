@@ -51,7 +51,7 @@ jobs:
       - name: Download image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "test_image:latest"
+          image: "ghcr.io/wattcode/globe-viz:${{ env.GITVERSION_SEMVER }}"
 
       - name: Login
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u wattcode --password-stdin
