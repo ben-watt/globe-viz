@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Text.Json.Serialization;
-using shipments_viz.StateStores;
+using globe_viz.StateStores;
 
-namespace shipments_viz.Domain
+namespace globe_viz.Domain
 {
     public record Journy : IEntity
     {
@@ -14,18 +14,6 @@ namespace shipments_viz.Domain
             Date = date;
             From = from;
             To = to;
-        }
-
-        public Journy(Shipment shipment)
-        {
-            Id = Guid.NewGuid();
-            Date = shipment.ShipmentSummary.Created;
-
-            var origin = shipment.ShipmentSummary.Addresses.First(x => x.AddressType == "Origin");
-            var destination = shipment.ShipmentSummary.Addresses.First(x => x.AddressType == "Destination");
-
-            From = new Location(origin.AddressLine1, origin.LatLong.Latitude, origin.LatLong.Longitude);
-            To = new Location(destination.AddressLine1, destination.LatLong.Latitude, destination.LatLong.Longitude);
         }
 
         public Guid Id { get; init; }
