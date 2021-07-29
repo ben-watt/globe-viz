@@ -8,16 +8,20 @@ using System.IO;
 using globe_viz.StateStores;
 using globe_viz.Domain;
 using System;
+using shipments_viz.Config;
+using Microsoft.Extensions.Configuration;
 
 namespace globe_viz
 {
     public class Startup
     {
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env, IConfiguration config)
         {
             _env = env;
+            _config = config;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -41,6 +45,7 @@ namespace globe_viz
             services.AddSingleton<IStoreState<Journy>>(journeyStore);
 
             services.AddTransient<LatLongLookup>();
+            services.Configure<GeoNames>(_config.GetSection(nameof(GeoNames)));
 
             services.AddHttpClient("journey-store");
             services.AddHttpClient("geo-names")
