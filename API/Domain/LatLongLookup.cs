@@ -39,7 +39,7 @@ namespace globe_viz.Domain
         {
             if(_clientFactory != null)
             {
-                LatLng? matchingPostCode = await LookupPostcode();
+                LatLng? matchingPostCode = await LookupPostcode(postcode);
 
                 if (matchingPostCode != null)
                     return (matchingPostCode.Lat, matchingPostCode.Lng);
@@ -53,11 +53,11 @@ namespace globe_viz.Domain
             return (0.0, 0.0);
         }
 
-        private async Task<LatLng> LookupPostcode()
+        private async Task<LatLng> LookupPostcode(string postcode)
         {
             var geoNamesClient = _clientFactory.CreateClient("geo-names");
             var response = await geoNamesClient.GetFromJsonAsync<PostalCodeSearchJsonResponse>(
-                $"/postalCodeSearchJSON?postalcode=31011&maxRows=1&username={_geoNameUserName}");
+                $"/postalCodeSearchJSON?postalcode={postcode}&maxRows=1&username={_geoNameUserName}");
 
             return response?.PostalCodes?.FirstOrDefault();
         }
