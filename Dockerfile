@@ -16,7 +16,7 @@ COPY /API/*.csproj .
 RUN dotnet restore -r linux-musl-x64
 
 COPY /API/ .
-RUN dotnet publish -c release -o /app/release -r linux-musl-x64 --self-contained false --no-restore
+RUN dotnet publish ./globe-viz.csproj -c release -o /app/release -r linux-musl-x64 --self-contained false --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine-amd64 AS release
 
