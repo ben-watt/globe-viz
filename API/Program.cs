@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace shipments_viz
+namespace globe_viz
 {
     public static class Program
     {

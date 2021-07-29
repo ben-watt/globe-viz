@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Text.Json;
 
-namespace shipments_viz.Controllers
+namespace globe_viz.Controllers
 {
     public class SnakeCaseNamingPolicy : JsonNamingPolicy
     {

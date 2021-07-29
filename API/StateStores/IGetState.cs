@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace shipments_viz.StateStores
+namespace globe_viz.StateStores
 {
     public interface IGetState<T>
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace shipments_viz.StateStores
+namespace globe_viz.StateStores
 {
     public class InMemoryStateStore<T> : IStoreState<T>, IGetState<T> where T : IEntity
     {

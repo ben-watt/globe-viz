@@ -1,4 +1,4 @@
-namespace shipments_viz.Domain
+namespace globe_viz.Domain
 {
     public record Location(
         string Name,
