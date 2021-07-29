@@ -31,4 +31,4 @@ COPY --from=build-ui /ui-app/build ./ui
 #ENV LC_ALL=en_US.UTF-8
 #ENV LANG=en_US.UTF-8
 WORKDIR /api
-ENTRYPOINT ["dotnet", "shipments-viz.dll"]
+ENTRYPOINT ["dotnet", "globe-viz.dll"]
