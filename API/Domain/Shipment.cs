@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace shipments_viz.Domain
+namespace globe_viz.Domain
 {
     public class Shipment
     {

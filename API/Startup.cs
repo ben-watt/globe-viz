@@ -3,16 +3,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
-using shipments_viz.Controllers;
+using globe_viz.Controllers;
 using System.IO;
-using shipments_viz.StateStores;
-using shipments_viz.Domain;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using shipments_viz.Messaging;
+using globe_viz.StateStores;
+using globe_viz.Domain;
+using System;
 
-namespace shipments_viz
+namespace globe_viz
 {
     public class Startup
     {
@@ -42,7 +39,15 @@ namespace shipments_viz
             var journeyStore = new InMemoryStateStore<Journy>();
             services.AddSingleton<IGetState<Journy>>(journeyStore);
             services.AddSingleton<IStoreState<Journy>>(journeyStore);
+
+            services.AddTransient<LatLongLookup>();
+
             services.AddHttpClient("journey-store");
+            services.AddHttpClient("geo-names")
+                .ConfigureHttpClient(x =>
+                {
+                    x.BaseAddress = new Uri("http://api.geonames.org/");
+                });
 
             if(_env.IsDevelopment())
             {

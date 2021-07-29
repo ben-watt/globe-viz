@@ -2,22 +2,26 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using shipments_viz.Domain;
-using shipments_viz.StateStores;
+using globe_viz.Domain;
+using globe_viz.StateStores;
+using System.Linq;
 
-namespace shipments_viz.Controllers
+namespace globe_viz.Controllers
 {
     public class JourneyController
     {
         private readonly IGetState<Journy> _journyStore;
         private readonly IStoreState<Journy> _save;
+        private readonly LatLongLookup _latLongLookup;
 
         public JourneyController(
             IGetState<Journy> journyStore,
-            IStoreState<Journy> save)
+            IStoreState<Journy> save,
+            LatLongLookup latLongLookup)
         {
             _journyStore = journyStore;
             _save = save;
+            _latLongLookup = latLongLookup;
         }
 
         public async Task GetJourneys(HttpContext context)
@@ -55,7 +59,6 @@ namespace shipments_viz.Controllers
         {
             try
             {
-
                 var options = new JsonSerializerOptions() {
                     PropertyNamingPolicy = new SnakeCaseNamingPolicy()
                 };
@@ -65,13 +68,40 @@ namespace shipments_viz.Controllers
                 Console.WriteLine(JsonSerializer.Serialize(request, options));
                 if(request != null)
                 {
-                    var journey = new Journy(request);
+                    var journey = await CreateJourney(request);
                     await _save.Save(journey);
                     context.Response.StatusCode = StatusCodes.Status201Created;
                     Console.WriteLine("Saved Journy: {0}", journey.Id);
                 }
             } catch(Exception ex) {
                 throw new BadHttpRequestException("Unable to parse request", ex);
+            }
+        }
+
+        private async Task<Journy> CreateJourney(Shipment request)
+        {
+            var id = Guid.NewGuid();
+            var date = request.ShipmentSummary.Created;
+
+            var origin = request.ShipmentSummary.Addresses.First(x => x.AddressType == "Origin");
+            var destination = request.ShipmentSummary.Addresses.First(x => x.AddressType == "Destination");
+
+            var from = await MapLocation(origin);
+            var to = await MapLocation(destination);
+
+            return new Journy(id, date, from, to);
+        }
+
+        private async Task<Location> MapLocation(ShipmentAddress address)
+        {
+            if (address.LatLong is null)
+            {
+                var latLng = await _latLongLookup.Get(address.PostalCode);
+                return new Location(address.AddressLine1, latLng.Lat, latLng.Lng);
+            }
+            else
+            {
+                return new Location(address.AddressLine1, address.LatLong.Latitude, address.LatLong.Longitude);
             }
         }
     }

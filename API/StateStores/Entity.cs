@@ -1,6 +1,6 @@
 using System;
 
-namespace shipments_viz.StateStores
+namespace globe_viz.StateStores
 {
     public interface IEntity
     {
