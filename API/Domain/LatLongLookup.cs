@@ -21,7 +21,7 @@ namespace globe_viz.Domain
 
             if (geoNameConfig.Value.UserName is null)
                 throw new ArgumentException("GeoNames.UserName has not been supplied. Unable to lookup postcodes using that service.\n"
-                    + "User appsettings.json or set the envrionment variable GEONAMES__USERNAME");
+                    + "User appsettings.json or set the envrionment variable GLOBEVIZ_GEONAMES__USERNAME");
 
             _geoNameUserName = geoNameConfig.Value.UserName;
         }
